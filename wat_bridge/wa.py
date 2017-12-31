@@ -48,6 +48,7 @@ class WaLayer(YowInterfaceLayer):
         """Received a message."""
         # Parse information
         sender = message.getFrom(full=False)
+        oidtotg = message.getFrom(full=True)
 
         logger.debug('received message from %s' % sender)
 
@@ -71,6 +72,7 @@ class WaLayer(YowInterfaceLayer):
             logger.debug('phone is blacklisted: %s' % sender)
             return
 
+        # body = "<" + oidtotg + ">: " + message.getBody()
         body = message.getBody()
 
         # Relay to Telegram
@@ -100,17 +102,23 @@ class WaLayer(YowInterfaceLayer):
             message (str): Message to send
         """
         phone = kwargs.get('phone')
+        toStr = ""
 
         if not phone:
             # Nothing to do
             logger.debug('no phone provided')
             return
 
+        if phone.find("-") :
+          toStr = phone + "@g.us"
+        else :
+          toStr = phone + "@s.whatsapp.net"
+
         message = kwargs.get('message')
 
         entity = TextMessageProtocolEntity(
             message,
-            to='%s@s.whatsapp.net' % phone
+            to=toStr
         )
 
         # self.ackQueue.append(entity.getId())

@@ -53,7 +53,7 @@ def start(message):
     Args:
         message: Received Telegram message.
     """
-    response = ('wat-bridge\n\n'
+    response = ('https://github.com/SpEcHiDe/wat-bridge\n\n'
                 'Usage:\n\n'
                 '   /help -> shows this help message\n'
                 '   /add <name> <phone> -> add a new contact to database\n'
@@ -306,9 +306,9 @@ def relay_wa(message):
     Args:
         message: Received Telegram message.
     """
-    if message.chat.id != SETTINGS['owner']:
-        tgbot.reply_to(message, 'you are not the owner of this bot')
-        return
+    #if message.chat.id != SETTINGS['owner']:
+    #    tgbot.reply_to(message, 'you are not the owner of this bot')
+    #    return
 
     # Get name and message
     args = telebot.util.extract_arguments(message.text)
@@ -364,10 +364,11 @@ def relay_group_wa(message):
     """
     cid = message.chat.id
     uid = message.from_user.id
+    text = "<" + message.from_user.first_name + ">: " + message.text
 
-    if uid != SETTINGS['owner']:
-        tgbot.reply_to(message, 'you are not the owner of this bot')
-        return
+    #if uid != SETTINGS['owner']:
+    #    tgbot.reply_to(message, 'you are not the owner of this bot')
+    #    return
 
     name = db_get_contact_by_group(group=cid)
     if not name:
@@ -376,4 +377,4 @@ def relay_group_wa(message):
 
     # Relay
     logger.info('relaying message to Whatsapp')
-    SIGNAL_WA.send('tgbot', contact=name, message=message.text)
+    SIGNAL_WA.send('tgbot', contact=name, message=text)

@@ -91,3 +91,7 @@ ENV/
 
 # Misc
 *.swp
+
+database.db
+config.conf
+
