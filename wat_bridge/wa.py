@@ -50,7 +50,7 @@ class WaLayer(YowInterfaceLayer):
         sender = message.getFrom(full=False)
         oidtotg = message.getFrom(full=True)
 
-        logger.debug('received message from %s' % sender)
+        logger.debug('received message from %s' % oidtotg)
 
         # Send receipt
         receipt = OutgoingReceiptProtocolEntity(
@@ -61,6 +61,12 @@ class WaLayer(YowInterfaceLayer):
         )
 
         self.toLower(receipt)
+
+        # https://github.com/tgalal/yowsup/issues/1411#issuecomment-203419530
+        # if isinstance(type(message), unicode) :
+        # message = message.encode('utf-8')
+        # entity = TextMessageProtocolEntity(message, sender)
+        # self.toLower(entity)
 
         # Ignore non-text messages
         if message.getType() != 'text':
@@ -75,9 +81,13 @@ class WaLayer(YowInterfaceLayer):
         # body = "<" + oidtotg + ">: " + message.getBody()
         body = message.getBody()
 
+        participant = message.getParticipant()
+
+        TheRealMessageToSend = "<" + participant.strip("@s.whatsapp.net") + ">: " + body
+
         # Relay to Telegram
         logger.info('relaying message to Telegram')
-        SIGNAL_TG.send('wabot', phone=sender, message=body)
+        SIGNAL_TG.send('wabot', phone=sender, message=TheRealMessageToSend)
 
     @ProtocolEntityCallback('receipt')
     def on_receipt(self, entity):
@@ -114,7 +124,7 @@ class WaLayer(YowInterfaceLayer):
         else :
           toStr = phone + "@s.whatsapp.net"
 
-        message = kwargs.get('message')
+        message = kwargs.get('message').encode('utf8')
 
         entity = TextMessageProtocolEntity(
             message,

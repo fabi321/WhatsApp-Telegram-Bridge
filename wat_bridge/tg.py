@@ -40,7 +40,7 @@ logger = get_logger('tg')
 # Telegram bot
 tgbot = telebot.TeleBot(
     SETTINGS['tg_token'],
-    threaded=False,
+    threaded=True,
     skip_pending=False
 )
 
@@ -372,7 +372,8 @@ def relay_group_wa(message):
 
     name = db_get_contact_by_group(group=cid)
     if not name:
-        tgbot.reply_to(message, 'no user is mapped to this group')
+        logger.info('no user is mapped to this group')
+        #tgbot.reply_to(message, 'no user is mapped to this group')
         return
 
     # Relay
