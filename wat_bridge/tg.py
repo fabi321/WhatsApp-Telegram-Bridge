@@ -27,6 +27,7 @@
 
 """Code for the Telegram side of the bridge."""
 
+import hashlib
 import telebot
 
 from wat_bridge.static import SETTINGS, SIGNAL_WA, get_logger
@@ -64,7 +65,8 @@ def start(message):
                 '   /rm <name> -> remove a contact from database\n'
                 '   /send <name> <message> -> send message to Whatsapp contact\n'
                 '   /unbind <name> -> unbind a contact from his group\n'
-                '   /unblacklist <phone> -> unblacklist a phone number\n\n'
+                '   /unblacklist <phone> -> unblacklist a phone number\n'
+                '   /link <groupID> -> link to the WhatsApp group ID\n\n'
                 'Note that blacklisting a phone number will make the bot ignore'
                 ' any Whatsapp messages that come from that number.'
                )
@@ -354,6 +356,37 @@ def unblacklist(message):
     db_rm_blacklist(phone)
 
     tgbot.reply_to(message, 'Phone has been unblacklisted')
+
+@tgbot.message_handler(commands=['link'])
+def link(message):
+    """Send a message to a contact through Whatsapp.
+
+    Message has the following format:
+
+        /link <group_id>
+
+    Args:
+        message: Received Telegram message.
+    """
+    if message.chat.type not in ['group', 'supergroup']:
+        tgbot.reply_to(message, 'This operation can be done only in a group')
+        return
+
+    # Get name and message
+    wa_group_id = telebot.util.extract_arguments(message.text)
+    wa_group_name = hashlib.md5(str(wa_group_id).encode('utf-8')).hexdigest()
+
+    if not wa_group_id:
+        tgbot.reply_to(message, 'Syntax: /link <groupID>')
+        return
+
+    # Add to database
+    db_add_contact(wa_group_name, wa_group_id)
+
+    # Add to database
+    db_set_group(wa_group_name, message.chat.id)
+
+    tgbot.reply_to(message, 'Linked')
 
 @tgbot.message_handler(func=lambda message: message.chat.type in ['group', 'supergroup'])
 def relay_group_wa(message):

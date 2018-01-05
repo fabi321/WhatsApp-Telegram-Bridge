@@ -35,7 +35,7 @@ from yowsup.layers.protocol_receipts.protocolentities import OutgoingReceiptProt
 from yowsup.layers.protocol_acks.protocolentities import OutgoingAckProtocolEntity
 from yowsup.stacks import YowStackBuilder
 
-from wat_bridge.static import SETTINGS, SIGNAL_TG, get_logger
+from wat_bridge.static import SETTINGS, SIGNAL_TG, SIGNAL_WA, get_logger
 from wat_bridge.helper import is_blacklisted
 
 logger = get_logger('wa')
@@ -80,6 +80,10 @@ class WaLayer(YowInterfaceLayer):
 
         # body = "<" + oidtotg + ">: " + message.getBody()
         body = message.getBody()
+
+        if body == '/getID':
+             self.send_msg(phone=sender, contact='TGWhatAppBot', message=sender)
+             return
 
         participant = message.getParticipant()
 
