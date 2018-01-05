@@ -102,7 +102,8 @@ class WaLayer(YowInterfaceLayer):
             entity.getFrom()
         )
 
-        self.toLower(ack)
+        #self.toLower(ack)
+        self.toLower(entity.ack())
 
     def send_msg(self, **kwargs):
         """Send a message.
