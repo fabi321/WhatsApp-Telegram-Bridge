@@ -31,6 +31,7 @@ from yowsup.layers import YowLayerEvent
 from yowsup.layers.interface import YowInterfaceLayer, ProtocolEntityCallback
 from yowsup.layers.network import YowNetworkLayer
 from yowsup.layers.protocol_messages.protocolentities import TextMessageProtocolEntity
+from yowsup.layers.protocol_media.protocolentities import ImageDownloadableMediaMessageProtocolEntity
 from yowsup.layers.protocol_receipts.protocolentities import OutgoingReceiptProtocolEntity
 from yowsup.layers.protocol_acks.protocolentities import OutgoingAckProtocolEntity
 from yowsup.stacks import YowStackBuilder
@@ -70,24 +71,35 @@ class WaLayer(YowInterfaceLayer):
 
         # Ignore non-text messages
         if message.getType() != 'text':
-            logger.info('not a text message, ignoring')
-            return
+            logger.info('not a text message, ignoring ' + message.getType())
+            #return
 
         # Do stuff
         if is_blacklisted(sender):
             logger.debug('phone is blacklisted: %s' % sender)
             return
 
-        # body = "<" + oidtotg + ">: " + message.getBody()
-        body = message.getBody()
-
         participant = message.getParticipant()
+        if participant :
+          participant = participant.strip("@s.whatsapp.net")
+        else :
+          participant = sender
 
-        TheRealMessageToSend = "<" + participant.strip("@s.whatsapp.net") + ">: " + body
+        # body = "<" + oidtotg + ">: " + message.getBody()
+        # body = "NULL"
+        if message.getType() == "text":
+          body = message.getBody()
+          TheRealMessageToSend = "<" + participant + ">: " + body
+          # Relay to Telegram
+          logger.info('relaying message to Telegram')
+          SIGNAL_TG.send('wabot', phone=sender, message=TheRealMessageToSend)
 
-        # Relay to Telegram
-        logger.info('relaying message to Telegram')
-        SIGNAL_TG.send('wabot', phone=sender, message=TheRealMessageToSend)
+        #if message.getType() == "media":
+        #  if message.getMediaType() == "image":
+        #    outImage = ImageDownloadableMediaMessageProtocolEntity.fromFilePath("./DOWNLOADS/",
+        #        message.url, message.ip, message.getFrom(), caption = message.getCaption())
+        #    self.toLower(outImage)
+        #    return
 
     @ProtocolEntityCallback('receipt')
     def on_receipt(self, entity):
@@ -120,7 +132,7 @@ class WaLayer(YowInterfaceLayer):
             logger.debug('no phone provided')
             return
 
-        if phone.find("-") :
+        if phone.find("-") > -1 :
           toStr = phone + "@g.us"
         else :
           toStr = phone + "@s.whatsapp.net"
