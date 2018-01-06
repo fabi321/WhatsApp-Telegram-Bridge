@@ -27,6 +27,7 @@
 
 """Helper functions."""
 
+import hashlib
 from wat_bridge.static import DB, CONTACT
 
 def db_add_blacklist(phone):
@@ -174,3 +175,6 @@ def safe_cast(val, to_type, default=None):
         return to_type(val)
     except (ValueError, TypeError):
         return default
+
+def wa_id_to_name(val):
+    return hashlib.md5(str(val).encode('utf-8')).hexdigest()

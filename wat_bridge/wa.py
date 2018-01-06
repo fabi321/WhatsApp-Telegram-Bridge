@@ -37,7 +37,7 @@ from yowsup.layers.protocol_acks.protocolentities import OutgoingAckProtocolEnti
 from yowsup.stacks import YowStackBuilder
 
 from wat_bridge.static import SETTINGS, SIGNAL_TG, SIGNAL_WA, get_logger
-from wat_bridge.helper import is_blacklisted
+from wat_bridge.helper import is_blacklisted, db_set_group, wa_id_to_name
 
 logger = get_logger('wa')
 
@@ -88,17 +88,27 @@ class WaLayer(YowInterfaceLayer):
         # body = "<" + oidtotg + ">: " + message.getBody()
         # body = "NULL"
         if message.getType() == "text":
-          body = message.getBody()
-          if body == '/getID':
-             self.send_msg(phone=sender, message="/link " + sender)
-             HelpInstructions = "Please send the above message in the Telegram group that you would like to bridge!"
-             self.send_msg(phone=sender, message=HelpInstructions)
-             return
+            body = message.getBody()
 
-          TheRealMessageToSend = "<" + participant + ">: " + body
-          # Relay to Telegram
-          logger.info('relaying message to Telegram')
-          SIGNAL_TG.send('wabot', phone=sender, message=TheRealMessageToSend)
+            if body == '/getID' or body == '/bridgeOn':
+                self.send_msg(phone=sender, message="/link " + sender)
+                HelpInstructions = "Please send the above message in the Telegram group that you would like to bridge!"
+                self.send_msg(phone=sender, message=HelpInstructions)
+                return
+
+            if body == '/bridgeOff':
+                wa_group_name = wa_id_to_name(sender)
+                db_set_group(wa_group_name, None)
+
+                HelpInstructions = "Bridge has been turned off! Use /bridgeOn to turn it back on"
+                self.send_msg(phone=sender, message=HelpInstructions)
+
+                return
+
+            TheRealMessageToSend = "<" + participant + ">: " + body
+            # Relay to Telegram
+            logger.info('relaying message to Telegram')
+            SIGNAL_TG.send('wabot', phone=sender, message=TheRealMessageToSend)
 
         #if message.getType() == "media":
         #  if message.getMediaType() == "image":
