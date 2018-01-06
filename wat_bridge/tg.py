@@ -27,14 +27,14 @@
 
 """Code for the Telegram side of the bridge."""
 
-import hashlib
 import telebot
 
 from wat_bridge.static import SETTINGS, SIGNAL_WA, get_logger
 from wat_bridge.helper import db_add_contact, db_rm_contact, \
         db_add_blacklist, db_rm_blacklist, db_list_contacts, \
         get_blacklist, get_contact, get_phone, is_blacklisted, \
-        db_get_group, db_set_group, db_get_contact_by_group, safe_cast
+        db_get_group, db_set_group, db_get_contact_by_group, safe_cast, \
+        wa_id_to_name
 
 logger = get_logger('tg')
 
@@ -374,7 +374,7 @@ def link(message):
 
     # Get name and message
     wa_group_id = telebot.util.extract_arguments(message.text)
-    wa_group_name = hashlib.md5(str(wa_group_id).encode('utf-8')).hexdigest()
+    wa_group_name = wa_id_to_name(wa_group_id)
 
     if not wa_group_id:
         tgbot.reply_to(message, 'Syntax: /link <groupID>')
