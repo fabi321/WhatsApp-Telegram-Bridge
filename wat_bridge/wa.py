@@ -102,10 +102,11 @@ class WaLayer(YowInterfaceLayer):
 
         #if message.getType() == "media":
         #  if message.getMediaType() == "image":
-        #    outImage = ImageDownloadableMediaMessageProtocolEntity.fromFilePath("./DOWNLOADS/",
-        #        message.url, message.ip, message.getFrom(), caption = message.getCaption())
-        #    self.toLower(outImage)
-        #    return
+        #    msg = message.getMediaMessageBody()
+        #    TheRealMessageToSend = "<" + participant + ">: " + msg.url + ", " + msg.caption
+        #    # Relay to Telegram
+        #    logger.info('relaying message to Telegram')
+        #    SIGNAL_TG.send('wabot', phone=sender, message=TheRealMessageToSend)
 
     @ProtocolEntityCallback('receipt')
     def on_receipt(self, entity):
