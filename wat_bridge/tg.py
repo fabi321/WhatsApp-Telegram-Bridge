@@ -475,7 +475,12 @@ def relay_group_wa(message):
     Args:
         message: Received Telegram message.
     """
+
     cid = message.chat.id
+
+    if not db_is_bridge_enabled_by_tg(cid):
+        return
+
     uid = message.from_user.id
     text = "<" + message.from_user.first_name + ">: " + message.text
 

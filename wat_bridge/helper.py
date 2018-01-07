@@ -172,6 +172,22 @@ def db_toggle_bridge_by_wa(contact, toggle):
 
     return toggle
 
+def db_is_bridge_enabled_by_tg(group):
+    result = DB.get((CONTACT.group == group))
+
+    if not result:
+        return None
+
+    return result.get('enabled')
+
+def db_is_bridge_enabled_by_wa(contact):
+    result = DB.get((CONTACT.name == contact.lower()))
+
+    if not result:
+        return None
+
+    return result.get('enabled')
+
 def db_get_contact_by_group(group):
     """Get phone number from a group id.
 

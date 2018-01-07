@@ -99,7 +99,7 @@ class WaLayer(YowInterfaceLayer):
 
                 return
 
-            if body == '/bridgeOn':
+            elif body == '/bridgeOn':
                 toggle = db_toggle_bridge_by_wa(sender, True)
 
                 if toggle == None:
@@ -111,7 +111,7 @@ class WaLayer(YowInterfaceLayer):
 
                 return
 
-            if body == '/bridgeOff':
+            elif body == '/bridgeOff':
                 toggle = db_toggle_bridge_by_wa(sender, False)
 
                 if toggle == None:
@@ -121,6 +121,9 @@ class WaLayer(YowInterfaceLayer):
 
                 self.send_msg(phone=sender, message=Message)
 
+                return
+
+            if not db_is_bridge_enabled_by_wa(sender):
                 return
 
             TheRealMessageToSend = "<" + participant + ">: " + body
