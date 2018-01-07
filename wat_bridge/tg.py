@@ -66,7 +66,8 @@ def start(message):
                 '   /send <name> <message> -> send message to Whatsapp contact\n'
                 '   /unbind <name> -> unbind a contact from his group\n'
                 '   /unblacklist <phone> -> unblacklist a phone number\n'
-                '   /link <groupID> -> link to the WhatsApp group ID\n Feature added by @subins2000\n'
+                '   /link <groupID> -> link to the WhatsApp group ID\n'
+                '   /unlink -> unlink from WhatsApp group\n Feature added by @subins2000\n\n'
                 'Note that blacklisting a phone number will make the bot ignore'
                 ' any Whatsapp messages that come from that number.'
                )
@@ -359,7 +360,7 @@ def unblacklist(message):
 
 @tgbot.message_handler(commands=['link'])
 def link(message):
-    """Send a message to a contact through Whatsapp.
+    """Link a WhatsApp group
 
     Message has the following format:
 
@@ -387,6 +388,32 @@ def link(message):
     db_set_group(wa_group_name, message.chat.id)
 
     tgbot.reply_to(message, 'Bridge Connected. Please subscribe to @WhatAppStatus for the bridge server informations.')
+
+@tgbot.message_handler(commands=['unlink'])
+def unlink(message):
+    """Unlink bridge
+
+    Message has the following format:
+
+        /unlink
+
+    Args:
+        message: Received Telegram message.
+    """
+    if message.chat.type not in ['group', 'supergroup']:
+        tgbot.reply_to(message, 'This operation can be done only in a group')
+        return
+
+    # Check if it already exists
+    wa_group_name = db_get_contact_by_group(message.chat.id)
+    if not wa_group_name:
+        tgbot.reply_to(message, 'This group is not bridged to anywhere')
+        return
+
+    # Add to database
+    db_rm_contact(wa_group_name)
+
+    tgbot.reply_to(message, 'Bridge to `' + wa_group_name + '` has been successfully removed.')
 
 @tgbot.message_handler(func=lambda message: message.chat.type in ['group', 'supergroup'])
 def relay_group_wa(message):
