@@ -92,15 +92,10 @@ class WaLayer(YowInterfaceLayer):
             body = message.getBody()
 
             if body == '/getID' or body == '/link':
-                wa_group_name = wa_id_to_name(sender)
-                phone = get_phone(wa_group_name)
+                self.send_msg(phone=sender, message="/link " + sender)
 
-                if not phone:
-                    self.send_msg(phone=sender, message="/link " + sender)
-
-                    HelpInstructions = "Please send the above message in the Telegram group that you would like to bridge!"
-
-                    self.send_msg(phone=sender, message=HelpInstructions)
+                HelpInstructions = "Please send the above message in the Telegram group that you would like to bridge!"
+                self.send_msg(phone=sender, message=HelpInstructions)
 
                 return
 
