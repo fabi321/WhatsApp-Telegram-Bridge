@@ -154,6 +154,9 @@ def db_get_group(contact):
 def db_set_group(contact, group):
     DB.update({'group': group}, (CONTACT.name == contact.lower()))
 
+def db_set_phone(contact, phone):
+    DB.update({'phone': phone}, (CONTACT.name == contact.lower()))
+
 def db_get_contact_by_group(group):
     """Get phone number from a group id.
 

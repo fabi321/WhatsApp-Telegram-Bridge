@@ -37,7 +37,8 @@ from yowsup.layers.protocol_acks.protocolentities import OutgoingAckProtocolEnti
 from yowsup.stacks import YowStackBuilder
 
 from wat_bridge.static import SETTINGS, SIGNAL_TG, SIGNAL_WA, get_logger
-from wat_bridge.helper import is_blacklisted, db_set_group, wa_id_to_name
+from wat_bridge.helper import is_blacklisted, get_phone, db_get_contact_by_group, \
+                              db_set_group, wa_id_to_name
 
 logger = get_logger('wa')
 
@@ -91,16 +92,30 @@ class WaLayer(YowInterfaceLayer):
             body = message.getBody()
 
             if body == '/getID' or body == '/bridgeOn':
-                self.send_msg(phone=sender, message="/link " + sender)
-                HelpInstructions = "Please send the above message in the Telegram group that you would like to bridge!"
-                self.send_msg(phone=sender, message=HelpInstructions)
+                wa_group_name = wa_id_to_name(sender)
+                phone = get_phone(wa_group_name)
+
+                if phone == False:
+                    # Enable bridge by setting the phone
+                    db_set_phone(wa_group_name, sender)
+
+                    EnabledMessage = "Bridge has been turned on!"
+
+                    self.send_msg(phone=sender, message=EnabledMessage)
+                else:
+                    self.send_msg(phone=sender, message="/link " + sender)
+
+                    HelpInstructions = "Please send the above message in the Telegram group that you would like to bridge!"
+
+                    self.send_msg(phone=sender, message=HelpInstructions)
+
                 return
 
             if body == '/bridgeOff':
                 wa_group_name = wa_id_to_name(sender)
-                db_set_group(wa_group_name, None)
+                db_set_phone(wa_group_name, False)
 
-                HelpInstructions = "Bridge has been turned off! Use /bridgeOn to turn it back on"
+                HelpInstructions = "Bridge has been turned off! Use ```/bridgeOn``` to turn it back on"
                 self.send_msg(phone=sender, message=HelpInstructions)
 
                 return
