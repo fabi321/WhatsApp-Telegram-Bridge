@@ -38,7 +38,7 @@ from yowsup.stacks import YowStackBuilder
 
 from wat_bridge.static import SETTINGS, SIGNAL_TG, SIGNAL_WA, get_logger
 from wat_bridge.helper import is_blacklisted, get_phone, db_get_contact_by_group, \
-                              db_set_group, wa_id_to_name
+                              db_set_group, wa_id_to_name, db_toggle_bridge_by_wa
 
 logger = get_logger('wa')
 
@@ -91,18 +91,11 @@ class WaLayer(YowInterfaceLayer):
         if message.getType() == "text":
             body = message.getBody()
 
-            if body == '/getID' or body == '/bridgeOn':
+            if body == '/getID' or body == '/link':
                 wa_group_name = wa_id_to_name(sender)
                 phone = get_phone(wa_group_name)
 
-                if phone == False:
-                    # Enable bridge by setting the phone
-                    db_set_phone(wa_group_name, sender)
-
-                    EnabledMessage = "Bridge has been turned on!"
-
-                    self.send_msg(phone=sender, message=EnabledMessage)
-                else:
+                if not phone:
                     self.send_msg(phone=sender, message="/link " + sender)
 
                     HelpInstructions = "Please send the above message in the Telegram group that you would like to bridge!"
@@ -111,12 +104,27 @@ class WaLayer(YowInterfaceLayer):
 
                 return
 
-            if body == '/bridgeOff':
-                wa_group_name = wa_id_to_name(sender)
-                db_set_phone(wa_group_name, False)
+            if body == '/bridgeOn':
+                toggle = db_toggle_bridge_by_wa(sender, True)
 
-                HelpInstructions = "Bridge has been turned off! Use ```/bridgeOn``` to turn it back on"
-                self.send_msg(phone=sender, message=HelpInstructions)
+                if toggle == None:
+                    Message = 'This group is not bridged to anywhere. Use ```/link``` to start bridging.'
+                else:
+                    Message = 'Bridge has been turned on!'
+
+                self.send_msg(phone=sender, message=Message)
+
+                return
+
+            if body == '/bridgeOff':
+                toggle = db_toggle_bridge_by_wa(sender, False)
+
+                if toggle == None:
+                    Message = 'This group is not bridged to anywhere. Use ```/link``` to start bridging.'
+                else:
+                    Message = 'Bridge has been turned off. Use ```/bridgeOn``` to turn it back on.'
+
+                self.send_msg(phone=sender, message=Message)
 
                 return
 

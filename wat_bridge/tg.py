@@ -34,7 +34,7 @@ from wat_bridge.helper import db_add_contact, db_rm_contact, \
         db_add_blacklist, db_rm_blacklist, db_list_contacts, \
         get_blacklist, get_contact, get_phone, is_blacklisted, \
         db_get_group, db_set_group, db_get_contact_by_group, safe_cast, \
-        wa_id_to_name
+        wa_id_to_name, db_toggle_bridge_by_tg
 
 logger = get_logger('tg')
 
@@ -67,7 +67,10 @@ def start(message):
                 '   /unbind <name> -> unbind a contact from his group\n'
                 '   /unblacklist <phone> -> unblacklist a phone number\n'
                 '   /link <groupID> -> link to the WhatsApp group ID\n'
-                '   /unlink -> unlink from WhatsApp group\n Feature added by @subins2000\n\n'
+                '   /unlink -> unlink from WhatsApp group\n'
+                '   /bridgeOn -> temporarily disable bridge\n'
+                '   /bridgeOff -> enable back bridge\n'
+                ' Feature added by @SubinSiby\n\n'
                 'Note that blacklisting a phone number will make the bot ignore'
                 ' any Whatsapp messages that come from that number.'
                )
@@ -413,7 +416,57 @@ def unlink(message):
     # Add to database
     db_rm_contact(wa_group_name)
 
-    tgbot.reply_to(message, 'Bridge to `' + wa_group_name + '` has been successfully removed.')
+    tgbot.reply_to(message, 'Bridge has been successfully removed.')
+
+@tgbot.message_handler(commands=['bridgeOn'])
+def bridge_on(message):
+    """Turn on bridge
+
+    Message has the following format:
+
+        /bridgeOn
+
+    Args:
+        message: Received Telegram message.
+    """
+    if message.chat.type not in ['group', 'supergroup']:
+        tgbot.reply_to(message, 'This operation can be done only in a group')
+        return
+
+    # Check if it already exists
+    wa_group_name = db_get_contact_by_group(message.chat.id)
+    if not wa_group_name:
+        tgbot.reply_to(message, 'This group is not bridged to anywhere')
+        return
+
+    db_toggle_bridge_by_tg(message.chat.id, True)
+
+    tgbot.reply_to(message, 'Bridge has been turned on.')
+
+@tgbot.message_handler(commands=['bridgeOff'])
+def bridge_off(message):
+    """Turn off bridge temporarily
+
+    Message has the following format:
+
+        /bridgeOff
+
+    Args:
+        message: Received Telegram message.
+    """
+    if message.chat.type not in ['group', 'supergroup']:
+        tgbot.reply_to(message, 'This operation can be done only in a group')
+        return
+
+    # Check if it already exists
+    wa_group_name = db_get_contact_by_group(message.chat.id)
+    if not wa_group_name:
+        tgbot.reply_to(message, 'This group is not bridged to anywhere')
+        return
+
+    db_toggle_bridge_by_tg(message.chat.id, False)
+
+    tgbot.reply_to(message, 'Bridge has been turned off. Use `/bridgeOn` to turn it back on')
 
 @tgbot.message_handler(func=lambda message: message.chat.type in ['group', 'supergroup'])
 def relay_group_wa(message):

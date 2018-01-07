@@ -51,7 +51,7 @@ def db_add_contact(name, phone):
     Returns:
         ID of the inserted element.
     """
-    return DB.insert({'name': name.lower(), 'phone': phone, 'blacklisted': False, 'group': None})
+    return DB.insert({'name': name.lower(), 'phone': phone, 'blacklisted': False, 'group': None, 'enabled': True})
 
 def db_list_contacts():
     """Obtain a list of contacts.
@@ -156,6 +156,21 @@ def db_set_group(contact, group):
 
 def db_set_phone(contact, phone):
     DB.update({'phone': phone}, (CONTACT.name == contact.lower()))
+
+def db_toggle_bridge_by_tg(group, toggle):
+    DB.update({'enabled': toggle}, (CONTACT.group == group))
+
+    return toggle
+
+def db_toggle_bridge_by_wa(contact, toggle):
+    result = DB.get((CONTACT.name == contact.lower()))
+
+    if not result:
+        return None
+
+    DB.update({'enabled': toggle}, (CONTACT.name == contact.lower()))
+
+    return toggle
 
 def db_get_contact_by_group(group):
     """Get phone number from a group id.
