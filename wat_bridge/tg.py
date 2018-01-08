@@ -500,7 +500,7 @@ def relay_group_wa(message):
     SIGNAL_WA.send('tgbot', contact=name, message=text)
 
 @tgbot.message_handler(commands=['xsend'])
-def x_send_msg()
+def x_send_msg():
     if message.chat.id != SETTINGS['owner']:
         tgbot.reply_to(message, 'You are not the owner of this bot')
         return
