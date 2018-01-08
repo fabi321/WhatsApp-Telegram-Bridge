@@ -167,13 +167,13 @@ def db_toggle_bridge_by_tg(group, toggle):
 
     return toggle
 
-def db_toggle_bridge_by_wa(contact, toggle):
-    result = DB.get((CONTACT.name == contact.lower()))
+def db_toggle_bridge_by_wa(phone, toggle):
+    result = DB.get((CONTACT.phone == phone))
 
     if not result:
         return None
 
-    DB.update({'enabled': toggle}, (CONTACT.name == contact.lower()))
+    DB.update({'enabled': toggle}, (CONTACT.phone == phone))
 
     return toggle
 
@@ -185,8 +185,8 @@ def db_is_bridge_enabled_by_tg(group):
 
     return result.get('enabled')
 
-def db_is_bridge_enabled_by_wa(contact):
-    result = DB.get((CONTACT.name == contact.lower()))
+def db_is_bridge_enabled_by_wa(phone):
+    result = DB.get((CONTACT.phone == phone))
 
     if not result:
         return None
