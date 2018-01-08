@@ -94,4 +94,5 @@ ENV/
 
 database.db
 config.conf
+log.txt
 

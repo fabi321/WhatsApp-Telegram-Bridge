@@ -124,8 +124,8 @@ class WaLayer(YowInterfaceLayer):
 
                 return
 
-            if not db_is_bridge_enabled_by_wa(sender):
-                return
+            #if not db_is_bridge_enabled_by_wa(sender):
+            #    return
 
             TheRealMessageToSend = "<" + participant + ">: " + body
             # Relay to Telegram
