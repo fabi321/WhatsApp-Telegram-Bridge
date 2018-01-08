@@ -43,6 +43,7 @@ from wat_bridge.helper import is_blacklisted, get_phone, db_get_contact_by_group
 
 import os
 import uuid
+import hashlib
 
 logger = get_logger('wa')
 
@@ -139,7 +140,7 @@ class WaLayer(YowInterfaceLayer):
           if not os.path.exists("/home/shrimadhav/Public/TGWhatAppBot"):
             os.makedirs("/home/shrimadhav/Public/TGWhatAppBot")
           # set unique filename
-          uniqueFilename = "/home/shrimadhav/Public/TGWhatAppBot/%s-%s%s" % (message.getFrom(False), uuid.uuid4().hex, message.getExtension())
+          uniqueFilename = "/home/shrimadhav/Public/TGWhatAppBot/%s-%s%s" % (hashlib.md5(str(message.getFrom(False))).hexdigest(), uuid.uuid4().hex, message.getExtension())
           if message.getMediaType() == "image":
             logger.info("Echoing image %s to %s" % (message.url, message.getFrom(False)))
             data = message.getMediaContent()
