@@ -41,6 +41,9 @@ from wat_bridge.helper import is_blacklisted, get_phone, db_get_contact_by_group
                               db_set_group, wa_id_to_name, db_toggle_bridge_by_wa, \
                               db_is_bridge_enabled_by_wa
 
+import os
+import uuid
+
 logger = get_logger('wa')
 
 class WaLayer(YowInterfaceLayer):
@@ -132,13 +135,45 @@ class WaLayer(YowInterfaceLayer):
             logger.info('relaying message to Telegram')
             SIGNAL_TG.send('wabot', phone=sender, message=TheRealMessageToSend)
 
-        #if message.getType() == "media":
-        #  if message.getMediaType() == "image":
-        #    msg = message.getMediaMessageBody()
-        #    TheRealMessageToSend = "<" + participant + ">: " + msg.url + ", " + msg.caption
-        #    # Relay to Telegram
-        #    logger.info('relaying message to Telegram')
-        #    SIGNAL_TG.send('wabot', phone=sender, message=TheRealMessageToSend)
+        if message.getType() == "media":
+          if not os.path.exists("/home/shrimadhav/Public/TGWhatAppBot"):
+            os.makedirs("/home/shrimadhav/Public/TGWhatAppBot")
+          # set unique filename
+          uniqueFilename = "/home/shrimadhav/Public/TGWhatAppBot/%s-%s%s" % (message.getFrom(False), uuid.uuid4().hex, message.getExtension())
+          if message.getMediaType() == "image":
+            logger.info("Echoing image %s to %s" % (message.url, message.getFrom(False)))
+            data = message.getMediaContent()
+            f = open(uniqueFilename, 'wb')
+            f.write(data)
+            f.close()
+          # https://github.com/AragurDEV/yowsup/pull/37
+          elif message.getMediaType() == "video":
+            logger.info("Echoing video %s to %s" % (message.url, message.getFrom(False)))
+            data = message.getMediaContent()
+            f = open(uniqueFilename, 'wb')
+            f.write(data)
+            f.close()
+          elif message.getMediaType() == "audio":
+            logger.info("Echoing audio %s to %s" % (message.url, message.getFrom(False)))
+            data = message.getMediaContent()
+            f = open(uniqueFilename, 'wb')
+            f.write(data)
+            f.close()
+          elif message.getMediaType() == "document":
+            logger.info("Echoing document %s to %s" % (message.url, message.getFrom(False)))
+            data = message.getMediaContent()
+            f = open(uniqueFilename, 'wb')
+            f.write(data)
+            f.close()
+          elif message.getMediaType() == "location":
+            logger.info("Echoing location (%s, %s) to %s" % (message.getLatitude(), message.getLongitude(), message.getFrom(False)))
+          elif message.getMediaType() == "vcard":
+            logger.info("Echoing vcard (%s, %s) to %s" % (message.getName(), message.getCardData(), message.getFrom(False)))
+          url = uniqueFilename.replace("/home/shrimadhav/Public/TGWhatAppBot", "https://SpEcHiDe.shrimadhavuk.me/TGWhatAppBot")
+          TheRealMessageToSend = "<" + participant + ">: " + url
+          # Relay to Telegram
+          logger.info('relaying message to Telegram')
+          SIGNAL_TG.send('wabot', phone=sender, message=TheRealMessageToSend)
 
     @ProtocolEntityCallback('receipt')
     def on_receipt(self, entity):

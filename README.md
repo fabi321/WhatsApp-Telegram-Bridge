@@ -20,7 +20,7 @@ $ WAT_CONF=path_to_conf_file python watbridge.py
 **NOTE:** For some reason, yowsup has issues when receiving messages. The workaround mentioned at <https://github.com/tgalal/yowsup/issues/1613#issuecomment-247801568> works, so instead of installing yowsup from requirements, use:
 
 ```
-$ pip install -U git+https://github.com/tawanda/yowsup.git
+$ pip install -U git+https://github.com/AragurDEV/yowsup.git
 ```
 
 ## Configuration
