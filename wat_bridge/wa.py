@@ -140,7 +140,7 @@ class WaLayer(YowInterfaceLayer):
           if not os.path.exists("/home/shrimadhav/Public/TGWhatAppBot"):
             os.makedirs("/home/shrimadhav/Public/TGWhatAppBot")
           # set unique filename
-          uniqueFilename = "/home/shrimadhav/Public/TGWhatAppBot/%s-%s%s" % (hashlib.md5(str(message.getFrom(False))).hexdigest(), uuid.uuid4().hex, message.getExtension())
+          uniqueFilename = "/home/shrimadhav/Public/TGWhatAppBot/%s-%s%s" % (hashlib.md5(str(message.getFrom(False)).encode('utf-8')).hexdigest(), uuid.uuid4().hex, message.getExtension())
           if message.getMediaType() == "image":
             logger.info("Echoing image %s to %s" % (message.url, message.getFrom(False)))
             data = message.getMediaContent()
