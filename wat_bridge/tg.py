@@ -35,6 +35,7 @@ from wat_bridge.helper import db_add_contact, db_rm_contact, \
         get_blacklist, get_contact, get_phone, is_blacklisted, \
         db_get_group, db_set_group, db_get_contact_by_group, safe_cast, \
         wa_id_to_name, db_toggle_bridge_by_tg, db_is_bridge_enabled_by_tg
+from wat_bridge.wa import wabot
 
 logger = get_logger('tg')
 
@@ -497,3 +498,15 @@ def relay_group_wa(message):
     # Relay
     logger.info('relaying message to Whatsapp')
     SIGNAL_WA.send('tgbot', contact=name, message=text)
+
+@tgbot.message_handler(commands=['xsend'])
+def x_send_msg()
+    if message.chat.id != SETTINGS['owner']:
+        tgbot.reply_to(message, 'You are not the owner of this bot')
+        return
+
+    args = telebot.util.extract_arguments(message.text)
+    phone, message = args.split(maxsplit=1)
+    wabot.send_msg(phone=phone, message=message)
+
+
