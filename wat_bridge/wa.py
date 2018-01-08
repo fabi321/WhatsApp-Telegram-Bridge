@@ -38,7 +38,8 @@ from yowsup.stacks import YowStackBuilder
 
 from wat_bridge.static import SETTINGS, SIGNAL_TG, SIGNAL_WA, get_logger
 from wat_bridge.helper import is_blacklisted, get_phone, db_get_contact_by_group, \
-                              db_set_group, wa_id_to_name, db_toggle_bridge_by_wa
+                              db_set_group, wa_id_to_name, db_toggle_bridge_by_wa, \
+                              db_is_bridge_enabled_by_wa
 
 logger = get_logger('wa')
 

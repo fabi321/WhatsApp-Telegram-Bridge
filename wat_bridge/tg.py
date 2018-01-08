@@ -34,7 +34,7 @@ from wat_bridge.helper import db_add_contact, db_rm_contact, \
         db_add_blacklist, db_rm_blacklist, db_list_contacts, \
         get_blacklist, get_contact, get_phone, is_blacklisted, \
         db_get_group, db_set_group, db_get_contact_by_group, safe_cast, \
-        wa_id_to_name, db_toggle_bridge_by_tg
+        wa_id_to_name, db_toggle_bridge_by_tg, db_is_bridge_enabled_by_tg
 
 logger = get_logger('tg')
 
