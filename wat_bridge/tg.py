@@ -478,7 +478,7 @@ def relay_group_wa(message):
 
     cid = message.chat.id
 
-    if not db_is_bridge_enabled_by_tg(cid):
+    if db_is_bridge_enabled_by_tg(cid) == False:
         return
 
     uid = message.from_user.id

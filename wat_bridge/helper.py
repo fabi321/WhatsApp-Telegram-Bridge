@@ -158,6 +158,11 @@ def db_set_phone(contact, phone):
     DB.update({'phone': phone}, (CONTACT.name == contact.lower()))
 
 def db_toggle_bridge_by_tg(group, toggle):
+    result = DB.get((CONTACT.group == group))
+
+    if not result:
+        return None
+
     DB.update({'enabled': toggle}, (CONTACT.group == group))
 
     return toggle

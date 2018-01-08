@@ -124,7 +124,7 @@ class WaLayer(YowInterfaceLayer):
 
                 return
 
-            if not db_is_bridge_enabled_by_wa(sender):
+            if db_is_bridge_enabled_by_wa(sender) == False:
                 return
 
             TheRealMessageToSend = "<" + participant + ">: " + body
