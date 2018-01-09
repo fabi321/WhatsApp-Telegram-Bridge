@@ -168,10 +168,11 @@ class WaLayer(YowInterfaceLayer):
             f.close()
           elif message.getMediaType() == "location":
             logger.info("Echoing location (%s, %s) to %s" % (message.getLatitude(), message.getLongitude(), message.getFrom(False)))
+            uniqueFilename = "LOCATION=|=|=" + message.getLatitude() + "=|=|=" + message.getLongitude()
           elif message.getMediaType() == "vcard":
             logger.info("Echoing vcard (%s, %s) to %s" % (message.getName(), message.getCardData(), message.getFrom(False)))
-          url = uniqueFilename.replace("/home/shrimadhav/Public/TGWhatAppBot", "https://SpEcHiDe.shrimadhavuk.me/TGWhatAppBot")
-          TheRealMessageToSend = "<" + participant + ">: " + url
+          # url = uniqueFilename.replace("/home/shrimadhav/Public/TGWhatAppBot", "https://SpEcHiDe.shrimadhavuk.me/TGWhatAppBot")
+          TheRealMessageToSend = participant + "=|=|=" + uniqueFilename
           # Relay to Telegram
           logger.info('relaying message to Telegram')
           SIGNAL_TG.send('wabot', phone=sender, message=TheRealMessageToSend, media=True)

@@ -55,37 +55,63 @@ def to_tg_handler(sender, **kwargs):
     message = kwargs.get('message')
     media = kwargs.get('media', '')
 
+    participant_id, message_url = message.split("=|=|=")
+
     # Check if known contact
     contact = get_contact(phone)
-
     chat_id = SETTINGS['owner']
 
-    if not contact:
-        # Unknown sender
-        output = 'Message from #unknown\n'
-        output += 'Phone number: %s\n' % phone
-        output += '---------\n'
-        output += message
-
-        logger.info('received message from unknown number: %s' % phone)
-
-    else:
-        group = db_get_group(contact)
-        if not group:
-            # Known sender
-            output = 'Message from #%s\n' % contact
+    if media == True :
+        # Media Messages
+        if not contact :
+            output = 'Media from #unknown\n'
+            output += 'Phone number: %s\n' % phone
+            output += 'Participant ID: %s\n' % participant_id
+        else :
+            group = db_get_group(contact)
+            if not group :
+                output = 'Media from #%s\n', % contact
+                output += 'Participant ID: %s\n' % participant_id
+            else :
+                # Contact is bound to group
+                chat_id = group
+                output = "Meia from %s\n", % participant_id
+        if message_url.startswith("LOCATION=|=|=") :
+            locstr, lat, lng = message_url.split("=|=|=")
+            tgbot.send_message(chat_id, output)
+            tgbot.send_location(chat_id, lat, lng)
+        # vcard can be handled in a similar manner
+        else :
+            tgbot.send_message(chat_id, output)
+            tgbot.send_document(chat_id, open(message_url, 'rb'))
+    else :
+        # Text Messages
+        if not contact:
+            # Unknown sender
+            output = 'Message from #unknown\n'
+            output += 'Phone number: %s\n' % phone
             output += '---------\n'
             output += message
+
+            logger.info('received message from unknown number: %s' % phone)
+
         else:
-            # Contact is bound to group
-            chat_id = group
-            output = message
+            group = db_get_group(contact)
+            if not group:
+                # Known sender
+                output = 'Message from #%s\n' % contact
+                output += '---------\n'
+                output += message
+            else:
+                # Contact is bound to group
+                chat_id = group
+                output = message
 
-        logger.info('received message from %s' % contact)
+            logger.info('received message from %s' % contact)
 
-    # Deliver message through Telegram
-    for chunk in tgutil.split_string(output, 3000):
-        tgbot.send_message(chat_id, chunk)
+        # Deliver message through Telegram
+        for chunk in tgutil.split_string(output, 3000):
+            tgbot.send_message(chat_id, chunk)
 
 
 def to_wa_handler(sender, **kwargs):
