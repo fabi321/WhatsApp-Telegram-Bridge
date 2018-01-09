@@ -509,4 +509,24 @@ def x_send_msg():
     phone, message = args.split(maxsplit=1)
     wabot.send_msg(phone=phone, message=message)
 
+# Handles all sent documents and audio files
+@tgbot.message_handler(content_types=['document', 'audio', 'photo', 'sticker', 'video', 'voice', 'video_note', 'contact', 'location'])
+def handle_docs_audio(message):
+    """ Handle media messages received in Telegram
+    """
+    cid = message.chat.id
+
+    if db_is_bridge_enabled_by_tg(cid) == False:
+        return
+
+    caption = message.caption
+    type = message.content_type
+    name = db_get_contact_by_group(group=cid)
+    if not name:
+        logger.info('no user is mapped to this group')
+        #tgbot.reply_to(message, 'no user is mapped to this group')
+        return
+    text = " " + message.from_user.first_name + " sent you " + type + " with caption " + caption + ". \r\nSending large files is not supported by WhatsApp at the moment, so switch to Telegram, and revolutionize the new era of messaging only on https://telegram.dog/dl "
+    logger.info('relaying message to Whatsapp')
+    SIGNAL_WA.send('tgbot', contact=name, message=text)
 

@@ -134,7 +134,7 @@ class WaLayer(YowInterfaceLayer):
             TheRealMessageToSend = "<" + participant + ">: " + body
             # Relay to Telegram
             logger.info('relaying message to Telegram')
-            SIGNAL_TG.send('wabot', phone=sender, message=TheRealMessageToSend)
+            SIGNAL_TG.send('wabot', phone=sender, message=TheRealMessageToSend, media=False)
 
         if message.getType() == "media":
           if not os.path.exists("/home/shrimadhav/Public/TGWhatAppBot"):
@@ -174,7 +174,7 @@ class WaLayer(YowInterfaceLayer):
           TheRealMessageToSend = "<" + participant + ">: " + url
           # Relay to Telegram
           logger.info('relaying message to Telegram')
-          SIGNAL_TG.send('wabot', phone=sender, message=TheRealMessageToSend)
+          SIGNAL_TG.send('wabot', phone=sender, message=TheRealMessageToSend, media=True)
 
     @ProtocolEntityCallback('receipt')
     def on_receipt(self, entity):

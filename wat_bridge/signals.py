@@ -49,9 +49,11 @@ def to_tg_handler(sender, **kwargs):
     Args:
         phone (str): Phone number that sent the message.
         message (str): The message received
+        media (boolean): True or False
     """
     phone = kwargs.get('phone')
-    message = kwargs.get('message', '')
+    message = kwargs.get('message')
+    media = kwargs.get('media', '')
 
     # Check if known contact
     contact = get_contact(phone)
