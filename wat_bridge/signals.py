@@ -70,12 +70,12 @@ def to_tg_handler(sender, **kwargs):
         else :
             group = db_get_group(contact)
             if not group :
-                output = 'Media from #%s\n', % contact
+                output = 'Media from #%s\n' % contact
                 output += 'Participant ID: %s\n' % participant_id
             else :
                 # Contact is bound to group
                 chat_id = group
-                output = "Meia from %s\n", % participant_id
+                output = "Media from %s\n" % participant_id
         if message_url.startswith("LOCATION=|=|=") :
             locstr, lat, lng = message_url.split("=|=|=")
             tgbot.send_message(chat_id, output)
