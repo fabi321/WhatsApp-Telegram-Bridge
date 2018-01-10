@@ -95,4 +95,5 @@ ENV/
 database.db
 config.conf
 log.txt
+log.pid
 
