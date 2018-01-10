@@ -14,7 +14,7 @@ This creates two listeners, one for WhatsApp and another for a Telegram bot.
 $ virtualenv -p python3 venv
 $ . venv/bin/activate
 $ pip install -r requirements.txt
-$ WAT_CONF=path_to_conf_file python watbridge.py
+$ sh status.sh
 ```
 
 **NOTE:** For some reason, yowsup has issues when receiving messages. The workaround mentioned at <https://github.com/tgalal/yowsup/issues/1613#issuecomment-247801568> works, so instead of installing yowsup from requirements, use:
