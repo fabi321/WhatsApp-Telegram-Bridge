@@ -97,3 +97,4 @@ config.conf
 log.txt
 log.pid
 
+UploadToTG.sh
