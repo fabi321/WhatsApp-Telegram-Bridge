@@ -53,7 +53,7 @@ def to_tg_handler(sender, **kwargs):
     """
     phone = kwargs.get('phone')
     message = kwargs.get('message')
-    media = kwargs.get('media', '')
+    media = kwargs.get('media')
 
     participant_id, message_url = message.split("=|=|=")
 

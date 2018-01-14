@@ -75,11 +75,6 @@ class WaLayer(YowInterfaceLayer):
         # entity = TextMessageProtocolEntity(message, sender)
         # self.toLower(entity)
 
-        # Ignore non-text messages
-        if message.getType() != 'text':
-            logger.info('not a text message, ignoring ' + message.getType())
-            #return
-
         # Do stuff
         if is_blacklisted(sender):
             logger.debug('phone is blacklisted: %s' % sender)
