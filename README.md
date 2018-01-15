@@ -1,6 +1,8 @@
 # wat-bridge
 
-[![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg)](https://gitter.im/wat-bridge/Lobby)
+## NEW
+
+The written instructions can be found [here](http://ibcomputing.com/whatsapp-telegram-bridge/).
 
 A bridge between WhatsApp and Telegram.
 
@@ -14,6 +16,7 @@ This creates two listeners, one for WhatsApp and another for a Telegram bot.
 $ virtualenv -p python3 venv
 $ . venv/bin/activate
 $ pip install -r requirements.txt
+$ sh run.sh
 $ sh status.sh
 ```
 
