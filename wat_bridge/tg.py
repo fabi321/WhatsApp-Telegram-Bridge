@@ -262,11 +262,12 @@ def list_contacts(message):
     contacts = db_list_contacts()
 
     response = 'Contacts:\n'
-    for c in contacts:
+    """for c in contacts:
         response += '- %s (%s)' % (c[0], c[1])
         if c[2]:
             response += ' -> group %s' % c[2]
-        response += '\n'
+        response += '\n'"""
+    response += str(len(contacts))
 
     tgbot.reply_to(message, response)
 

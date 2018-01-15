@@ -55,13 +55,13 @@ def to_tg_handler(sender, **kwargs):
     message = kwargs.get('message')
     media = kwargs.get('media')
 
-    participant_id, message_url = message.split("=|=|=")
 
     # Check if known contact
     contact = get_contact(phone)
     chat_id = SETTINGS['owner']
 
     if media == True :
+        participant_id, message_url = message.split("=|=|=")
         # Media Messages
         if not contact :
             output = 'Media from #unknown\n'
