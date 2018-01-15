@@ -98,3 +98,6 @@ log.txt
 log.pid
 
 UploadToTG.sh
+DOWNLOADS/*.*
+
+

@@ -132,10 +132,10 @@ class WaLayer(YowInterfaceLayer):
             SIGNAL_TG.send('wabot', phone=sender, message=TheRealMessageToSend, media=False)
 
         if message.getType() == "media":
-          if not os.path.exists("/home/shrimadhav/Public/TGWhatAppBot"):
-            os.makedirs("/home/shrimadhav/Public/TGWhatAppBot")
+          if not os.path.exists("./DOWNLOADS"):
+            os.makedirs("./DOWNLOADS")
           # set unique filename
-          uniqueFilename = "/home/shrimadhav/Public/TGWhatAppBot/%s-%s%s" % (hashlib.md5(str(message.getFrom(False)).encode('utf-8')).hexdigest(), uuid.uuid4().hex, message.getExtension())
+          uniqueFilename = "./DOWNLOADS/%s-%s%s" % (hashlib.md5(str(message.getFrom(False)).encode('utf-8')).hexdigest(), uuid.uuid4().hex, message.getExtension())
           if message.getMediaType() == "image":
             logger.info("Echoing image %s to %s" % (message.url, message.getFrom(False)))
             data = message.getMediaContent()
@@ -166,7 +166,6 @@ class WaLayer(YowInterfaceLayer):
             uniqueFilename = "LOCATION=|=|=" + message.getLatitude() + "=|=|=" + message.getLongitude()
           elif message.getMediaType() == "vcard":
             logger.info("Echoing vcard (%s, %s) to %s" % (message.getName(), message.getCardData(), message.getFrom(False)))
-          # url = uniqueFilename.replace("/home/shrimadhav/Public/TGWhatAppBot", "https://SpEcHiDe.shrimadhavuk.me/TGWhatAppBot")
           TheRealMessageToSend = participant + "=|=|=" + uniqueFilename
           # Relay to Telegram
           logger.info('relaying message to Telegram')
