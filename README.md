@@ -78,3 +78,17 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
+
+## Extra Configuration (To Get the Log Files Delivered to your Telegram ChatBox)
+
+- create a file named `UploadToTG.sh` with the following contents.
+
+```
+curl -i \
+-F "chat_id={OWNER_CHAT_ID}" \
+-F "document=@./log.txt" \
+"https://api.telegram.org/bot{TG_BOT_TOKEN}/sendDocument"
+```
+
+- Replace the variables with your variables.
+
