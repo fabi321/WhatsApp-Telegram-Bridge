@@ -216,4 +216,8 @@ def safe_cast(val, to_type, default=None):
         return default
 
 def wa_id_to_name(val):
-    return hashlib.md5(str(val).encode('utf-8')).hexdigest()
+    if val :
+        return hashlib.md5(str(val).encode('utf-8')).hexdigest()
+    else :
+        return None
+
