@@ -5,8 +5,8 @@ if [ $? -eq 0 ]; then
     do
       kill -9 ${j}
     done
-    . ./UploadToTG.sh
+    sh UploadToTG.sh
     rm log.pid
     rm log.txt
-    . ./run.sh
+    sh run.sh
 fi

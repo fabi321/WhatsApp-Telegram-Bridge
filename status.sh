@@ -9,7 +9,7 @@ do
      # Do something knowing the pid exists,
      # i.e. the process with $PID is
      # running
-     . ./kill.sh
+     sh kill.sh
   fi
 done
 done

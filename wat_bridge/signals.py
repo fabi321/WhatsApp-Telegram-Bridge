@@ -78,12 +78,11 @@ def to_tg_handler(sender, **kwargs):
                 output = "Media from %s\n" % participant_id
         if message_url.startswith("LOCATION=|=|=") :
             locstr, lat, lng = message_url.split("=|=|=")
-            tgbot.send_message(chat_id, output)
-            tgbot.send_location(chat_id, lat, lng)
+            #tgbot.send_message(chat_id, output)
+            #tgbot.send_location(chat_id, lat, lng)
         # vcard can be handled in a similar manner
         else :
-            tgbot.send_message(chat_id, output)
-            tgbot.send_document(chat_id, open(message_url, 'rb'))
+            tgbot.send_document(chat_id, open(message_url, 'rb'), caption=output)
     else :
         # Text Messages
         if not contact:
