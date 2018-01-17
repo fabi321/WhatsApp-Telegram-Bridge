@@ -28,7 +28,7 @@
 """Signal handlers."""
 
 import sys
-
+import os
 from wat_bridge.static import SETTINGS, get_logger
 from wat_bridge.helper import get_contact, get_phone, db_get_group
 from wat_bridge.tg import tgbot
@@ -83,6 +83,7 @@ def to_tg_handler(sender, **kwargs):
         # vcard can be handled in a similar manner
         else :
             tgbot.send_document(chat_id, open(message_url, 'rb'), caption=output)
+            os.remove(message_url)
     else :
         # Text Messages
         if not contact:
