@@ -92,7 +92,7 @@ ENV/
 # Misc
 *.swp
 
-database.db
+database.json
 config.conf
 log.txt
 log.pid
