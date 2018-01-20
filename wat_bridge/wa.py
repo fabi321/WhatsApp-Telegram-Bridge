@@ -39,7 +39,7 @@ from yowsup.stacks import YowStackBuilder
 from wat_bridge.static import SETTINGS, SIGNAL_TG, SIGNAL_WA, get_logger
 from wat_bridge.helper import is_blacklisted, get_phone, db_get_contact_by_group, \
                               db_set_group, wa_id_to_name, db_toggle_bridge_by_wa, \
-                              db_is_bridge_enabled_by_wa
+                              db_is_bridge_enabled_by_wa, get_contact, db_add_contact
 
 import os
 import uuid
@@ -86,6 +86,8 @@ class WaLayer(YowInterfaceLayer):
         else :
           participant = sender
 
+        contact_name = get_contact(participant)
+
         # body = "<" + oidtotg + ">: " + message.getBody()
         # body = "NULL"
         if message.getType() == "text":
@@ -98,6 +100,29 @@ class WaLayer(YowInterfaceLayer):
                 self.send_msg(phone=sender, message=HelpInstructions)
 
                 return
+            elif body.startswith('/add'):
+                if participant == sender:
+                    name = body[5:]
+                    if not name :
+                        ReplyMessage = "Syntax: /add <name>"
+                    else :
+                        if contact_name :
+                            db_rm_contact(contact_name)
+                            db_add_contact(name, sender)
+                            ReplyMessage = "name already existed. name removed and added. Pleae verify with ```/me```"
+                        else :
+                            db_add_contact(name, sender)
+                            ReplyMessage = "name added. Pleae verify with ```/me```"
+                    self.send_msg(phone=sender, message=ReplyMessage)
+                    return
+            elif body == '/me':
+                if not contact_name:
+                    ReplyMessage = "Please send ```/add NAME``` to add you to my contacts."
+                else:
+                    ReplyMessage = "I have saved your name as " + contact_name + ". You can edit your name in my contacts by sending ```/add NAME```!"
+                if participant == sender:
+                    self.send_msg(phone=sender, message=ReplyMessage)
+                    return
 
             elif body == '/bridgeOn':
                 toggle = db_toggle_bridge_by_wa(sender, True)
@@ -126,7 +151,10 @@ class WaLayer(YowInterfaceLayer):
             if db_is_bridge_enabled_by_wa(sender) == False:
                 return
 
-            TheRealMessageToSend = "<" + participant + ">: " + body
+            if contact_name :
+                TheRealMessageToSend = "<#" + contact_name + ">: " + body
+            else :
+                TheRealMessageToSend = "<" + participant + ">: " + body
             # Relay to Telegram
             logger.info('relaying message to Telegram')
             SIGNAL_TG.send('wabot', phone=sender, message=TheRealMessageToSend, media=False)
