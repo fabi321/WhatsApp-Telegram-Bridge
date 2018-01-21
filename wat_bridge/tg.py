@@ -29,12 +29,12 @@
 
 import telebot
 
-from wat_bridge.static import SETTINGS, SIGNAL_WA, get_logger
 from wat_bridge.helper import db_add_contact, db_rm_contact, \
         db_add_blacklist, db_rm_blacklist, db_list_contacts, \
         get_blacklist, get_contact, get_phone, is_blacklisted, \
         db_get_group, db_set_group, db_get_contact_by_group, safe_cast, \
         wa_id_to_name, db_toggle_bridge_by_tg, db_is_bridge_enabled_by_tg
+from wat_bridge.static import SETTINGS, SIGNAL_WA, get_logger
 from wat_bridge.wa import wabot
 
 logger = get_logger('tg')
@@ -55,25 +55,11 @@ def start(message):
     Args:
         message: Received Telegram message.
     """
-    response = ('https://github.com/SpEcHiDe/wat-bridge\n\n'
-                'Usage:\n\n'
-                '   /help -> shows this help message\n'
-                '   /add <name> <phone> -> add a new contact to database\n'
-                '   /bind <name> <group id> -> bind a contact to a group\n'
-                '   /contacts -> list contacts\n'
-                '   /blacklist -> show blacklisted Whatsapp phones\n'
-                '   /blacklist <phone> -> blacklist a phone number\n'
-                '   /rm <name> -> remove a contact from database\n'
-                '   /send <name> <message> -> send message to Whatsapp contact\n'
-                '   /unbind <name> -> unbind a contact from his group\n'
-                '   /unblacklist <phone> -> unblacklist a phone number\n'
-                '   /link <groupID> -> link to the WhatsApp group ID\n'
-                '   /unlink -> unlink from WhatsApp group\n'
-                '   /bridgeOn -> temporarily disable bridge\n'
-                '   /bridgeOff -> enable back bridge\n'
-                ' Feature added by @SubinSiby\n\n'
-                'Note that blacklisting a phone number will make the bot ignore'
-                ' any Whatsapp messages that come from that number.'
+    response = ('Source Code available here: https://github.com/SpEcHiDe/wat-bridge \r\n'
+		'Please read https://blog.shrimadhavuk.me/posts/2017/12/31/Telegram-WhatApp/ to know how to use the bot! \r\n'
+		'Terms and Consitions: https://backend.shrimadhavuk.me/TermsAndConditions \r\n'
+		'Privacy Policy: https://backend.shrimadhavuk.me/PrivacyPolicy \r\n'
+		'\r\n New Year Hobby Project by @rmedgar, @SpEcHlDe, @SubinSiby, and many more .. \r\n'
                )
 
     tgbot.reply_to(message, response)
@@ -480,7 +466,7 @@ def relay_group_wa(message):
 
     cid = message.chat.id
 
-    if db_is_bridge_enabled_by_tg(cid) == False:
+    if not db_is_bridge_enabled_by_tg(cid):
         return
 
     uid = message.from_user.id
@@ -501,7 +487,7 @@ def relay_group_wa(message):
     SIGNAL_WA.send('tgbot', contact=name, message=text)
 
 @tgbot.message_handler(commands=['xsend'])
-def x_send_msg():
+def x_send_msg(message):
     if message.chat.id != SETTINGS['owner']:
         tgbot.reply_to(message, 'You are not the owner of this bot')
         return
@@ -511,13 +497,15 @@ def x_send_msg():
     wabot.send_msg(phone=phone, message=message)
 
 # Handles all sent documents and audio files
-@tgbot.message_handler(content_types=['document', 'audio', 'photo', 'sticker', 'video', 'voice', 'video_note', 'contact', 'location'])
+@tgbot.message_handler(
+    content_types=['document', 'audio', 'photo', 'sticker', 'video',
+                   'voice', 'video_note', 'contact', 'location'])
 def handle_docs_audio(message):
     """ Handle media messages received in Telegram
     """
     cid = message.chat.id
 
-    if db_is_bridge_enabled_by_tg(cid) == False:
+    if not db_is_bridge_enabled_by_tg(cid):
         return
 
     caption = message.caption
@@ -527,7 +515,10 @@ def handle_docs_audio(message):
         logger.info('no user is mapped to this group')
         #tgbot.reply_to(message, 'no user is mapped to this group')
         return
-    text = " " + message.from_user.first_name + " sent you " + type + " with caption " + caption + ". \r\nSending large files is not supported by WhatsApp at the moment, so switch to Telegram, and revolutionize the new era of messaging only on https://telegram.dog/dl "
+    text = " " + message.from_user.first_name + " sent you " + type + \
+	   " with caption " + caption + \
+	   ". \r\nSending large files is not supported by WhatsApp at the moment, \r\n" \
+	   " so switch to Telegram, and revolutionize the new era of messaging only on https://telegram.dog/dl "
     logger.info('relaying message to Whatsapp')
     SIGNAL_WA.send('tgbot', contact=name, message=text)
 

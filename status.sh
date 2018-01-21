@@ -9,7 +9,11 @@ do
      # Do something knowing the pid exists,
      # i.e. the process with $PID is
      # running
-     sh kill.sh
+     a=`grep "^\[ERROR\]" log.txt`
+     if [ $? -eq 0 ]; then
+       sh kill.sh
+       sh run.sh
+     fi
   fi
 done
 done

@@ -27,6 +27,10 @@
 
 """Code for the Whatsapp side of the bridge."""
 
+import hashlib
+import os
+import uuid
+
 from yowsup.layers import YowLayerEvent
 from yowsup.layers.interface import YowInterfaceLayer, ProtocolEntityCallback
 from yowsup.layers.network import YowNetworkLayer
@@ -40,10 +44,6 @@ from wat_bridge.static import SETTINGS, SIGNAL_TG, SIGNAL_WA, get_logger
 from wat_bridge.helper import is_blacklisted, get_phone, db_get_contact_by_group, \
                               db_set_group, wa_id_to_name, db_toggle_bridge_by_wa, \
                               db_is_bridge_enabled_by_wa, get_contact, db_add_contact
-
-import os
-import uuid
-import hashlib
 
 logger = get_logger('wa')
 
@@ -81,10 +81,10 @@ class WaLayer(YowInterfaceLayer):
             return
 
         participant = message.getParticipant()
-        if participant :
-          participant = participant.strip("@s.whatsapp.net")
-        else :
-          participant = sender
+        if participant:
+            participant = participant.strip("@s.whatsapp.net")
+        else:
+            participant = sender
 
         contact_name = get_contact(participant)
 
@@ -127,7 +127,7 @@ class WaLayer(YowInterfaceLayer):
             elif body == '/bridgeOn':
                 toggle = db_toggle_bridge_by_wa(sender, True)
 
-                if toggle == None:
+                if toggle is None:
                     Message = 'This group is not bridged to anywhere. Use ```/link``` to start bridging.'
                 else:
                     Message = 'Bridge has been turned on!'
@@ -139,7 +139,7 @@ class WaLayer(YowInterfaceLayer):
             elif body == '/bridgeOff':
                 toggle = db_toggle_bridge_by_wa(sender, False)
 
-                if toggle == None:
+                if toggle is None:
                     Message = 'This group is not bridged to anywhere. Use ```/link``` to start bridging.'
                 else:
                     Message = 'Bridge has been turned off. Use ```/bridgeOn``` to turn it back on.'
@@ -148,7 +148,7 @@ class WaLayer(YowInterfaceLayer):
 
                 return
 
-            if db_is_bridge_enabled_by_wa(sender) == False:
+            if not db_is_bridge_enabled_by_wa(sender):
                 return
 
             if contact_name :
@@ -257,10 +257,10 @@ _connect_signal = YowLayerEvent(YowNetworkLayer.EVENT_STATE_CONNECT)
 
 WA_STACK = (
     YowStackBuilder()
-    .pushDefaultLayers(True)
-    # .pushDefaultLayers(False)
-    .push(wabot)
-    .build()
+	.pushDefaultLayers(True)
+	# .pushDefaultLayers(False)
+	.push(wabot)
+	.build()
 )
 
 WA_STACK.setCredentials((SETTINGS['wa_phone'], SETTINGS['wa_password']))

@@ -27,13 +27,13 @@
 
 """Static elements."""
 
-from six.moves import configparser
-from tinydb import TinyDB, Query
-from tinydb_smartcache import SmartCacheTable
-import blinker
 import logging
 import os
 import sys
+import blinker
+from six.moves import configparser
+from tinydb import TinyDB, Query
+from tinydb_smartcache import SmartCacheTable
 
 # Main settings
 SETTINGS = {}

@@ -27,13 +27,13 @@
 
 """Signal handlers."""
 
-import sys
 import os
-from wat_bridge.static import SETTINGS, get_logger
+import sys
+from telebot import util as tgutil
 from wat_bridge.helper import get_contact, get_phone, db_get_group
+from wat_bridge.static import SETTINGS, get_logger
 from wat_bridge.tg import tgbot
 from wat_bridge.wa import wabot
-from telebot import util as tgutil
 
 logger = get_logger('signals')
 
@@ -60,31 +60,31 @@ def to_tg_handler(sender, **kwargs):
     contact = get_contact(phone)
     chat_id = SETTINGS['owner']
 
-    if media == True :
+    if media:
         participant_id, message_url = message.split("=|=|=")
         # Media Messages
-        if not contact :
+        if not contact:
             output = 'Media from #unknown\n'
             output += 'Phone number: %s\n' % phone
             output += 'Participant ID: %s\n' % participant_id
-        else :
+        else:
             group = db_get_group(contact)
-            if not group :
+            if not group:
                 output = 'Media from #%s\n' % contact
                 output += 'Participant ID: %s\n' % participant_id
-            else :
+            else:
                 # Contact is bound to group
                 chat_id = group
                 output = "Media from %s\n" % participant_id
-        if message_url.startswith("LOCATION=|=|=") :
+        if message_url.startswith("LOCATION=|=|="):
             locstr, lat, lng = message_url.split("=|=|=")
             #tgbot.send_message(chat_id, output)
             #tgbot.send_location(chat_id, lat, lng)
         # vcard can be handled in a similar manner
-        else :
+        else:
             tgbot.send_document(chat_id, open(message_url, 'rb'), caption=output)
             os.remove(message_url)
-    else :
+    else:
         # Text Messages
         if not contact:
             # Unknown sender
