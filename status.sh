@@ -16,4 +16,5 @@ do
      fi
   fi
 done
+sleep 10
 done

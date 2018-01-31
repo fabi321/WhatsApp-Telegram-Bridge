@@ -70,7 +70,7 @@ def wa_listener():
             logger.error(e)
 
             logger.info('Start Whatsapp sleep')
-            time.sleep(10)
+            time.sleep(1)
             logger.info('Ended Whatsapp sleep')
 
             pass
