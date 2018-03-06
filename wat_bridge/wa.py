@@ -94,11 +94,11 @@ class WaLayer(YowInterfaceLayer):
             body = message.getBody()
 
             if body == '/getID' or body == '/link':
-                self.send_msg(phone=sender, message="/link " + sender)
+                # self.send_msg(phone=sender, message="/link " + sender)
 
-                HelpInstructions = "Please send the above message in the Telegram group that you would like to bridge!"
-                self.send_msg(phone=sender, message=HelpInstructions)
-
+                # HelpInstructions = "Please send the above message in the Telegram group that you would like to bridge!"
+                # self.send_msg(phone=sender, message=HelpInstructions)
+                self.send_msg(phone=sender, message="new tregistrations are closed. please contact https://youtu.be/9r-yzKfL8xw for bridging Telegram ")
                 return
             elif body.startswith('/add'):
                 if participant == sender:

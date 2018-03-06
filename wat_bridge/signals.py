@@ -28,6 +28,7 @@
 """Signal handlers."""
 
 import os
+import magic
 import sys
 from telebot import util as tgutil
 from wat_bridge.helper import get_contact, get_phone, db_get_group
@@ -82,7 +83,12 @@ def to_tg_handler(sender, **kwargs):
             #tgbot.send_location(chat_id, lat, lng)
         # vcard can be handled in a similar manner
         else:
-            tgbot.send_document(chat_id, open(message_url, 'rb'), caption=output)
+            mime = magic.Magic(mime=True)
+            mime_type = mime.from_file(message_url)
+            if "image" in mime_type:
+                tgbot.send_photo(chat_id, open(message_url, 'rb'), caption=output)
+            else:
+                tgbot.send_document(chat_id, open(message_url, 'rb'), caption=output)
             os.remove(message_url)
     else:
         # Text Messages

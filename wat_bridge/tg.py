@@ -246,14 +246,15 @@ def list_contacts(message):
         return
 
     contacts = db_list_contacts()
-
+    g = 0
     response = 'Contacts:\n'
-    """for c in contacts:
-        response += '- %s (%s)' % (c[0], c[1])
+    for c in contacts:
+        # response += '- %s (%s)' % (c[0], c[1])
         if c[2]:
-            response += ' -> group %s' % c[2]
-        response += '\n'"""
-    response += str(len(contacts))
+            # response += ' -> group %s' % c[2]
+            g = g + 1
+        # response += '\n'"""
+    response += str(len(contacts)) + "  " + str(g)
 
     tgbot.reply_to(message, response)
 
@@ -515,10 +516,14 @@ def handle_docs_audio(message):
         logger.info('no user is mapped to this group')
         #tgbot.reply_to(message, 'no user is mapped to this group')
         return
+    link = "https://telegram.dog/dl"
+    #if message.forward_from_message_id:
+    #    link = "https://telegram.me/" + str(message.forward_from_chat.username) + "/" + str(message.forward_from_message_id)
+
     text = " " + message.from_user.first_name + " sent you " + type + \
 	   " with caption " + caption + \
 	   ". \r\nSending large files is not supported by WhatsApp at the moment, \r\n" \
-	   " so switch to Telegram, and revolutionize the new era of messaging only on https://telegram.dog/dl "
+	   " so switch to Telegram, and revolutionize the new era of messaging only on " + link + ""
     logger.info('relaying message to Whatsapp')
     SIGNAL_WA.send('tgbot', contact=name, message=text)
 
