@@ -504,6 +504,7 @@ def x_send_msg(message):
 def handle_docs_audio(message):
     """ Handle media messages received in Telegram
     """
+    # print(message)
     cid = message.chat.id
 
     if not db_is_bridge_enabled_by_tg(cid):
@@ -517,13 +518,14 @@ def handle_docs_audio(message):
         #tgbot.reply_to(message, 'no user is mapped to this group')
         return
     link = "https://telegram.dog/dl"
-    #if message.forward_from_message_id:
-    #    link = "https://telegram.me/" + str(message.forward_from_chat.username) + "/" + str(message.forward_from_message_id)
+    if message.forward_from_chat.username:
+        link = "https://telegram.me/" + str(message.forward_from_chat.username) + "/" + str(message.forward_from_message_id)
 
     text = " " + message.from_user.first_name + " sent you " + type + \
 	   " with caption " + caption + \
 	   ". \r\nSending large files is not supported by WhatsApp at the moment, \r\n" \
 	   " so switch to Telegram, and revolutionize the new era of messaging only on " + link + ""
+    # print(text)
     logger.info('relaying message to Whatsapp')
     SIGNAL_WA.send('tgbot', contact=name, message=text)
 
