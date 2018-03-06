@@ -98,7 +98,7 @@ class WaLayer(YowInterfaceLayer):
 
                 # HelpInstructions = "Please send the above message in the Telegram group that you would like to bridge!"
                 # self.send_msg(phone=sender, message=HelpInstructions)
-                self.send_msg(phone=sender, message="new tregistrations are closed. please contact https://youtu.be/9r-yzKfL8xw for bridging Telegram ")
+                self.send_msg(phone=sender, message="new registrations are closed. please contact https://youtu.be/9r-yzKfL8xw for bridging Telegram ")
                 return
             elif body.startswith('/add'):
                 if participant == sender:
@@ -194,7 +194,7 @@ class WaLayer(YowInterfaceLayer):
             uniqueFilename = "LOCATION=|=|=" + message.getLatitude() + "=|=|=" + message.getLongitude()
           elif message.getMediaType() == "vcard":
             logger.info("Echoing vcard (%s, %s) to %s" % (message.getName(), message.getCardData(), message.getFrom(False)))
-
+            uniqueFilename = "VCARDCONTACT=|=|=" + message.getName() + "=|=|=" + message.getCardData()
           if contact_name :
             TheRealMessageToSend = contact_name + "=|=|=" + uniqueFilename
           else:

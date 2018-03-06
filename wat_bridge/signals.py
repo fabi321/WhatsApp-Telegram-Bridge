@@ -79,9 +79,12 @@ def to_tg_handler(sender, **kwargs):
                 output = "Media from %s\n" % participant_id
         if message_url.startswith("LOCATION=|=|="):
             locstr, lat, lng = message_url.split("=|=|=")
-            #tgbot.send_message(chat_id, output)
-            #tgbot.send_location(chat_id, lat, lng)
+            tgbot.send_message(chat_id, output)
+            tgbot.send_location(chat_id, lat, lng)
         # vcard can be handled in a similar manner
+        elif message_url.startswith("VCARDCONTACT=|=|="):
+            constr, name, cdata = message_url.split("=|=|=")
+            # TODO: but How?
         else:
             mime = magic.Magic(mime=True)
             mime_type = mime.from_file(message_url)
