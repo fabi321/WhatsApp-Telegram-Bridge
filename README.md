@@ -1,6 +1,6 @@
 # WhatApp <=> Telegram Bridge
 
-🆕  The written instructions can be found [here](http://ibcomputing.com/whatsapp-telegram-bridge/).
+🆕  The written instructions can be found [here](https://blog.shrimadhavuk.me/posts/2017/12/31/telegram-whatapp/).
 
 ** LEGAL DISCLAIMER: ** It is possible that WhatsApp will end up blocking the phone number used to connect through yowsup-cli ** Use at your own Risk **
 
@@ -37,7 +37,7 @@ SOFTWARE.
 - ```mv development.conf config.conf```
 - Edit config.conf according to the instructions given below.
 - ```sh run.sh```
-- ~sh status.sh~ This needs to be fixed. [Issue](https://github.com/SpEcHiDe/wat-bridge/issues/8)
+- ```sh status.sh```
 
 ## edit ```config.conf```
 
