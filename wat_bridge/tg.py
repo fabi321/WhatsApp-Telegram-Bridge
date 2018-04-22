@@ -499,7 +499,7 @@ def meet_jit_si_NEW_call_h(message):
     if not name:
         reply_message = "This group is not bridged to anywhere. PLEASE DO NOT ABUSE THIS FREE SERVICE."
     else:
-        reply_message += "https://meet.jit.si/" + "" + wa_id_to_name(name)
+        reply_message += "https://meet.jit.si/" + "" + wa_id_to_name(name + str(round(time.time())) + name)
     tgbot.reply_to(message, reply_message)
     if name:
         SIGNAL_WA.send('tgbot', contact=name, message=reply_message)
