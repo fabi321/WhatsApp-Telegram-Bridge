@@ -90,6 +90,8 @@ def to_tg_handler(sender, **kwargs):
             mime_type = mime.from_file(message_url)
             if "image" in mime_type:
                 tgbot.send_photo(chat_id, open(message_url, 'rb'), caption=output)
+            elif "video" in mime_type:
+                tgbot.send_video(chat_id, open(message_url, "rb"), caption=output, supports_streaming=True)
             else:
                 tgbot.send_document(chat_id, open(message_url, 'rb'), caption=output)
             os.remove(message_url)

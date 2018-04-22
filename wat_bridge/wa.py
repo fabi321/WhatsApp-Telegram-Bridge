@@ -91,7 +91,8 @@ class WaLayer(YowInterfaceLayer):
         # body = "<" + oidtotg + ">: " + message.getBody()
         # body = "NULL"
         if message.getType() == "text":
-            body = message.getBody()
+            logger.debug("is text message")
+            body = message.getBody().decode()
 
             if body == '/getID' or body == '/link':
                 self.send_msg(phone=sender, message="/link " + sender)
@@ -100,7 +101,7 @@ class WaLayer(YowInterfaceLayer):
                 self.send_msg(phone=sender, message=HelpInstructions)
                 # self.send_msg(phone=sender, message="new registrations are closed. please contact https://youtu.be/9r-yzKfL8xw for bridging Telegram ")
                 return
-            elif body.startswith('/add'):
+            elif body[0:5] == '/add ':
                 if participant == sender:
                     name = body[5:]
                     if not name :
@@ -151,10 +152,12 @@ class WaLayer(YowInterfaceLayer):
             if not db_is_bridge_enabled_by_wa(sender):
                 return
 
+            logger.info("prefix WHO send this message, to message")
             if contact_name :
                 TheRealMessageToSend = "<#" + contact_name + ">: " + body
             else :
                 TheRealMessageToSend = "<" + participant + ">: " + body
+
             # Relay to Telegram
             logger.info('relaying message to Telegram')
             SIGNAL_TG.send('wabot', phone=sender, message=TheRealMessageToSend, media=False)

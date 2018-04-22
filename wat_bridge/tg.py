@@ -379,7 +379,7 @@ def link(message):
     # Add to database
     db_set_group(wa_group_name, message.chat.id)
 
-    tgbot.reply_to(message, 'Bridge Connected. Please subscribe to @WhatAppStatus for the bridge server informations.')
+    tgbot.reply_to(message, 'Bridge Connected. Please subscribe to @WhatAppStatus for the bridge server informations. \r\n While this service is free, I still have to pay for the servers, so please consider becoming a supporter at https://buymeacoff.ee/SpEcHiDe \r\n This message won\'t appear again! Enjoy the \'free\' service!!')
 
 @tgbot.message_handler(commands=['unlink'])
 def unlink(message):
@@ -465,6 +465,10 @@ def relay_group_wa(message):
         message: Received Telegram message.
     """
 
+    if message.text in ['/jc', '/joincall']:
+        meet_jit_si_NEW_call_h(message)
+        return
+
     cid = message.chat.id
 
     if not db_is_bridge_enabled_by_tg(cid):
@@ -487,15 +491,18 @@ def relay_group_wa(message):
     logger.info('relaying message to Whatsapp')
     SIGNAL_WA.send('tgbot', contact=name, message=text)
 
-@tgbot.message_handler(commands=['xsend'])
-def x_send_msg(message):
-    if message.chat.id != SETTINGS['owner']:
-        tgbot.reply_to(message, 'You are not the owner of this bot')
-        return
-
-    args = telebot.util.extract_arguments(message.text)
-    phone, message = args.split(maxsplit=1)
-    wabot.send_msg(phone=phone, message=message)
+def meet_jit_si_NEW_call_h(message):
+    logger.debug('NEW pending feature')
+    cid = message.chat.id
+    name = db_get_contact_by_group(group=cid)
+    reply_message = "Click on this link to join a @GroupCall with all the users. \r\n"
+    if not name:
+        reply_message = "This group is not bridged to anywhere. PLEASE DO NOT ABUSE THIS FREE SERVICE."
+    else:
+        reply_message += "https://meet.jit.si/" + "" + wa_id_to_name(name)
+    tgbot.reply_to(message, reply_message)
+    if name:
+        SIGNAL_WA.send('tgbot', contact=name, message=reply_message)
 
 # Handles all sent documents and audio files
 @tgbot.message_handler(
