@@ -28,7 +28,7 @@
 """Code for the Telegram side of the bridge."""
 
 import telebot
-
+import time
 from wat_bridge.helper import db_add_contact, db_rm_contact, \
         db_add_blacklist, db_rm_blacklist, db_list_contacts, \
         get_blacklist, get_contact, get_phone, is_blacklisted, \
