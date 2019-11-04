@@ -1,6 +1,6 @@
 #!/bin/sh
 
-DOWNLOAD_PATH="/home/shrimadhav/danog/yowsup/WhatApp/wat-bridge/DOWNLOADS"
+DOWNLOAD_PATH="/home/fabian/wat/Downloads"
 cd ${DOWNLOAD_PATH}
 cd ..
 rm -rf "DOWNLOADS"
