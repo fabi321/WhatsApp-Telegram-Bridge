@@ -30,13 +30,22 @@
 import os
 import magic
 import sys
-from telebot import util as tgutil
 from wat_bridge.helper import get_contact, get_phone, db_get_group
 from wat_bridge.static import SETTINGS, get_logger
-from wat_bridge.tg import tgbot
+from wat_bridge.tg import updater as tgbot
 from wat_bridge.wa import wabot
 
 logger = get_logger('signals')
+
+def split_string(text, chars_per_string):
+    """
+    Splits one string into multiple strings, with a maximum amount of `chars_per_string` characters per string.
+    This is very useful for splitting one giant message into multiples.
+    :param text: The text to split
+    :param chars_per_string: The number of characters per line the text is split into.
+    :return: The splitted text as a list of strings.
+    """
+    return [text[i:i + chars_per_string] for i in range(0, len(text), chars_per_string)]
 
 def sigint_handler(signal, frame):
     """Function used as handler for SIGINT to terminate program."""
@@ -79,8 +88,8 @@ def to_tg_handler(sender, **kwargs):
                 output = "Media from %s\n" % participant_id
         if message_url.startswith("LOCATION=|=|="):
             locstr, lat, lng = message_url.split("=|=|=")
-            tgbot.send_message(chat_id, output)
-            tgbot.send_location(chat_id, lat, lng)
+            tgbot.bot.send_message(chat_id, output)
+            tgbot.bot.send_location(chat_id, lat, lng)
         # vcard can be handled in a similar manner
         elif message_url.startswith("VCARDCONTACT=|=|="):
             constr, name, cdata = message_url.split("=|=|=")
@@ -89,11 +98,11 @@ def to_tg_handler(sender, **kwargs):
             mime = magic.Magic(mime=True)
             mime_type = mime.from_file(message_url)
             if "image" in mime_type:
-                tgbot.send_photo(chat_id, open(message_url, 'rb'), caption=output)
+                tgbot.bot.send_photo(chat_id, open(message_url, 'rb'), caption=output)
             elif "video" in mime_type:
-                tgbot.send_video(chat_id, open(message_url, "rb"), caption=output, supports_streaming=True)
+                tgbot.bot.send_video(chat_id, open(message_url, "rb"), caption=output, supports_streaming=True)
             else:
-                tgbot.send_document(chat_id, open(message_url, 'rb'), caption=output)
+                tgbot.bot.send_document(chat_id, open(message_url, 'rb'), caption=output)
             os.remove(message_url)
     else:
         # Text Messages
@@ -121,8 +130,8 @@ def to_tg_handler(sender, **kwargs):
             logger.info('received message from %s' % contact)
 
         # Deliver message through Telegram
-        for chunk in tgutil.split_string(output, 3000):
-            tgbot.send_message(chat_id, chunk)
+        for chunk in split_string(output, 3000):
+            tgbot.bot.send_message(chat_id, chunk)
 
 
 def to_wa_handler(sender, **kwargs):
@@ -142,7 +151,7 @@ def to_wa_handler(sender, **kwargs):
 
     if not phone:
         # Abort
-        tgbot.send_message(
+        tgbot.bot.send_message(
             SETTINGS['owner'],
             'Unknown contact: "%s"' % contact
         )

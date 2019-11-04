@@ -27,7 +27,8 @@
 
 """Code for the Telegram side of the bridge."""
 
-import telebot
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
+from telegram import Update, Message
 import time
 from wat_bridge.helper import db_add_contact, db_rm_contact, \
         db_add_blacklist, db_rm_blacklist, db_list_contacts, \
@@ -39,17 +40,9 @@ from wat_bridge.wa import wabot
 
 logger = get_logger('tg')
 
-# Telegram bot
-tgbot = telebot.TeleBot(
-    SETTINGS['tg_token'],
-    threaded=True,
-    skip_pending=False
-)
-
 # Create handlers
 
-@tgbot.message_handler(commands=['start', 'help'])
-def start(message):
+def start(update: Update, context: CallbackContext):
     """Show usage of the bot.
 
     Args:
@@ -62,19 +55,17 @@ def start(message):
 		'\r\n New Year Hobby Project by @rmedgar, @SpEcHlDe, @SubinSiby, and many more .. \r\n'
                )
 
-    tgbot.reply_to(message, response)
+    update.message.reply_text(response)
 
-@tgbot.message_handler(commands=['me'])
-def me(message):
+def me(update: Update, context: CallbackContext):
     """Get user ID.
 
     Args:
         message: Received Telegram message.
     """
-    tgbot.reply_to(message, message.chat.id)
+    update.message.reply_text(update.message.chat.id)
 
-@tgbot.message_handler(commands=['add'])
-def add_contact(message):
+def add_contact(update: Update, context: CallbackContext):
     """Add a new Whatsapp contact to the database.
 
     Message has the following format:
@@ -84,30 +75,31 @@ def add_contact(message):
     Args:
         message: Received Telegram message.
     """
-    if message.chat.id != SETTINGS['owner']:
-        tgbot.reply_to(message, 'You are not the owner of this bot')
+    if update.message.chat.id != SETTINGS['owner']:
+        update.message.reply_text('You are not the owner of this bot')
         return
 
     # Get name and phone
-    args = telebot.util.extract_arguments(message.text)
-    name, phone = args.split(maxsplit=1)
+    args = update.message.text
+    try:
+        dump, name, phone = args.split(' ', 2)
 
-    if not name or not phone:
-        tgbot.reply_to(message, 'Syntax: /add <name> <phone>')
+        # Check if it already exists
+        if get_contact(phone) or get_phone(name):
+            update.message.reply_text('A contact with those details already exists')
+            return
+
+        # Add to database
+        db_add_contact(name, phone)
+
+        update.message.reply_text('Contact added')
+
+    except:
+        update.message.reply_text('Syntax: /add <name> <phone>')
         return
 
-    # Check if it already exists
-    if get_contact(phone) or get_phone(name):
-        tgbot.reply_to(message, 'A contact with those details already exists')
-        return
 
-    # Add to database
-    db_add_contact(name, phone)
-
-    tgbot.reply_to(message, 'Contact added')
-
-@tgbot.message_handler(commands=['bind'])
-def bind(message):
+def bind(update: Update, context: CallbackContext):
     """Bind a contact to a group.
 
     Message has the following format:
@@ -117,41 +109,41 @@ def bind(message):
     Args:
         message: Received Telegram message.
     """
-    if message.chat.id != SETTINGS['owner']:
-        tgbot.reply_to(message, 'You are not the owner of this bot')
+    if update.message.chat.id != SETTINGS['owner']:
+        update.message.reply_text('You are not the owner of this bot')
         return
 
     # Get name and phone
-    args = telebot.util.extract_arguments(message.text)
-    name, group_id = args.split(maxsplit=1)
+    args = update.message.text
+    try:
+        dump, name, group_id = args.split(' ', 2)
 
-    if not name or not group_id:
-        tgbot.reply_to(message, 'Syntax: /bind <name> <group id>')
+        group_id = safe_cast(group_id, int)
+        if not group_id:
+            update.message.reply_text('Group id has to be a number')
+            return
+
+        # Ensure contact exists
+        if not get_phone(name):
+            update.message.reply_text('No contact found with that name')
+            return
+
+        # Check if it already exists
+        current = db_get_contact_by_group(group_id)
+        if current:
+            update.message.reply_text('This group is already bound to ' + current)
+            return
+
+        # Add to database
+        db_set_group(name, group_id)
+
+        update.message.reply_text('Bound to group')
+    except:
+        update.message.reply_text('Syntax: /bind <name> <group id>')
         return
 
-    group_id = safe_cast(group_id, int)
-    if not group_id:
-        tgbot.reply_to(message, 'Group id has to be a number')
-        return
 
-    # Ensure contact exists
-    if not get_phone(name):
-        tgbot.reply_to(message, 'No contact found with that name')
-        return
-
-    # Check if it already exists
-    current = db_get_contact_by_group(group_id)
-    if current:
-        tgbot.reply_to(message, 'This group is already bound to ' + current)
-        return
-
-    # Add to database
-    db_set_group(name, group_id)
-
-    tgbot.reply_to(message, 'Bound to group')
-
-@tgbot.message_handler(commands=['unbind'])
-def unbind(message):
+def unbind(update: Update, context: CallbackContext):
     """Unbind a contact from his group.
 
     Message has the following format:
@@ -161,35 +153,34 @@ def unbind(message):
     Args:
         message: Received Telegram message.
     """
-    if message.chat.id != SETTINGS['owner']:
-        tgbot.reply_to(message, 'You are not the owner of this bot')
+    if update.message.chat.id != SETTINGS['owner']:
+        update.message.reply_text('You are not the owner of this bot')
         return
 
     # Get name and phone
-    name = telebot.util.extract_arguments(message.text)
+    name = update.message.text
 
     if not name:
-        tgbot.reply_to(message, 'Syntax: /unbind <name>')
+        update.message.reply_text('Syntax: /unbind <name>')
         return
 
     # Ensure contact exists
     if not get_phone(name):
-        tgbot.reply_to(message, 'No contact found with that name')
+        update.message.reply_text('No contact found with that name')
         return
 
     # Check if it already exists
     group = db_get_group(name)
     if not group:
-        tgbot.reply_to(message, 'Contact was not bound to a group')
+        update.message.reply_text('Contact was not bound to a group')
         return
 
     # Add to database
     db_set_group(name, None)
 
-    tgbot.reply_to(message, 'Unbound from group')
+    update.message.reply_text('Unbound from group')
 
-@tgbot.message_handler(commands=['blacklist'])
-def blacklist(message):
+def blacklist(update: Update, context: CallbackContext):
     """Blacklist a Whatsapp phone.
 
     Message has the following format:
@@ -202,12 +193,12 @@ def blacklist(message):
     Args:
         message: Received Telegram message.
     """
-    if message.chat.id != SETTINGS['owner']:
-        tgbot.reply_to(message, 'you are not the owner of this bot')
+    if update.message.chat.id != SETTINGS['owner']:
+        update.message.reply_text('you are not the owner of this bot')
         return
 
     # Get phone
-    phone = telebot.util.extract_arguments(message.text)
+    phone = update.message.text
 
     if not phone:
         # Return list
@@ -217,21 +208,20 @@ def blacklist(message):
         for b in blacklist:
             response += '- %s\n' % b
 
-        tgbot.reply_to(message, response)
+        update.message.reply_text(response)
         return
 
     # Blacklist a phone
     if is_blacklisted(phone):
         # Already blacklisted
-        tgbot.reply_to(message, 'That phone is already blacklisted')
+        update.message.reply_text('That phone is already blacklisted')
         return
 
     db_add_blacklist(phone)
 
-    tgbot.reply_to(message, 'Phone has been blacklisted')
+    update.message.reply_text('Phone has been blacklisted')
 
-@tgbot.message_handler(commands=['contacts'])
-def list_contacts(message):
+def list_contacts(update: Update, context: CallbackContext):
     """List stored contacts.
 
     Message has the following format:
@@ -241,25 +231,24 @@ def list_contacts(message):
     Args:
         message: Received Telegram message.
     """
-    if message.chat.id != SETTINGS['owner']:
-        tgbot.reply_to(message, 'you are not the owner of this bot')
+    if update.message.chat.id != SETTINGS['owner']:
+        update.message.reply_text('you are not the owner of this bot')
         return
 
     contacts = db_list_contacts()
     g = 0
     response = 'Contacts:\n'
     for c in contacts:
-        # response += '- %s (%s)' % (c[0], c[1])
+        response += '- %s (%s)' % (c[0], c[1])
         if c[2]:
-            # response += ' -> group %s' % c[2]
+            response += ' -> group %s' % c[2]
             g = g + 1
-        # response += '\n'"""
-    response += str(len(contacts)) + "  " + str(g)
+        response += '\n'
+    response += str(len(contacts)) + " Contacts in " + str(g) + ' Groups'
 
-    tgbot.reply_to(message, response)
+    update.message.reply_text(response)
 
-@tgbot.message_handler(commands=['rm'])
-def rm_contact(message):
+def rm_contact(update: Update, context: CallbackContext):
     """Remove a Whatsapp contact from the database.
 
     Message has the following format:
@@ -269,29 +258,28 @@ def rm_contact(message):
     Args:
         message: Received Telegram message.
     """
-    if message.chat.id != SETTINGS['owner']:
-        tgbot.reply_to(message, 'you are not the owner of this bot')
+    if update.message.chat.id != SETTINGS['owner']:
+        update.message.reply_text('you are not the owner of this bot')
         return
 
     # Get name
-    name = telebot.util.extract_arguments(message.text)
+    name = update.message.text
 
     if not name:
-        tgbot.reply_to(message, 'Syntax: /rm <name>')
+        update.message.reply_text('Syntax: /rm <name>')
         return
 
     # Check if it already exists
     if not get_phone(name):
-        tgbot.reply_to(message, 'No contact found with that name')
+        update.message.reply_text('No contact found with that name')
         return
 
     # Add to database
     db_rm_contact(name)
 
-    tgbot.reply_to(message, 'Contact removed')
+    update.message.reply_text('Contact removed')
 
-@tgbot.message_handler(commands=['send'])
-def relay_wa(message):
+def relay_wa(update: Update, context: CallbackContext):
     """Send a message to a contact through Whatsapp.
 
     Message has the following format:
@@ -301,24 +289,23 @@ def relay_wa(message):
     Args:
         message: Received Telegram message.
     """
-    #if message.chat.id != SETTINGS['owner']:
-    #    tgbot.reply_to(message, 'you are not the owner of this bot')
+    #if update.message.chat.id != SETTINGS['owner']:
+    #    update.message.reply_text('you are not the owner of this bot')
     #    return
 
     # Get name and message
-    args = telebot.util.extract_arguments(message.text)
-    name, text = args.split(maxsplit=1)
+    args = update.message.text
+    try:
+        dump, name, text = args.split(' ', 2)
 
-    if not name or not text:
-        tgbot.reply_to(message, 'Syntax: /send <name> <message>')
+        # Relay
+        logger.info('relaying message to Whatsapp')
+        SIGNAL_WA.send('tgbot', contact=name, message=text)
+    except:
+        update.message.reply_text('Syntax: /send <name> <message>')
         return
 
-    # Relay
-    logger.info('relaying message to Whatsapp')
-    SIGNAL_WA.send('tgbot', contact=name, message=text)
-
-@tgbot.message_handler(commands=['unblacklist'])
-def unblacklist(message):
+def unblacklist(update: Update, context: CallbackContext):
     """Unblacklist a Whatsapp phone.
 
     Message has the following format:
@@ -328,30 +315,29 @@ def unblacklist(message):
     Args:
         message: Received Telegram message.
     """
-    if message.chat.id != SETTINGS['owner']:
-        tgbot.reply_to(message, 'you are not the owner of this bot')
+    if update.message.chat.id != SETTINGS['owner']:
+        update.message.reply_text('you are not the owner of this bot')
         return
 
     # Get phone
-    phone = telebot.util.extract_arguments(message.text)
+    phone =update.message.text
 
     if not phone:
         # Return list
-        tgbot.reply_to(message, 'Syntax: /unblacklist <phone>')
+        update.message.reply_text('Syntax: /unblacklist <phone>')
         return
 
     # Unblacklist a phone
     if not is_blacklisted(phone):
         # Not blacklisted
-        tgbot.reply_to(message, 'That phone is not blacklisted')
+        update.message.reply_text('That phone is not blacklisted')
         return
 
     db_rm_blacklist(phone)
 
-    tgbot.reply_to(message, 'Phone has been unblacklisted')
+    update.message.reply_text('Phone has been unblacklisted')
 
-@tgbot.message_handler(commands=['link'])
-def link(message):
+def link(update: Update, context: CallbackContext):
     """Link a WhatsApp group
 
     Message has the following format:
@@ -361,28 +347,27 @@ def link(message):
     Args:
         message: Received Telegram message.
     """
-    if message.chat.type not in ['group', 'supergroup']:
-        tgbot.reply_to(message, 'This operation can be done only in a group')
+    if context.chat_data.type not in ['group', 'supergroup']:
+        update.message.reply_text('This operation can be done only in a group')
         return
 
     # Get name and message
-    wa_group_id = telebot.util.extract_arguments(message.text)
+    wa_group_id = update.message.text
     wa_group_name = wa_id_to_name(wa_group_id)
 
     if not wa_group_id:
-        tgbot.reply_to(message, 'Syntax: /link <groupID>')
+        update.message.reply_text('Syntax: /link <groupID>')
         return
 
     # Add to database
     db_add_contact(wa_group_name, wa_group_id)
 
     # Add to database
-    db_set_group(wa_group_name, message.chat.id)
+    db_set_group(wa_group_name, update.message.chat.id)
 
-    tgbot.reply_to(message, 'Bridge Connected. Please subscribe to @WhatAppStatus for the bridge server informations. \r\n While this service is free, I still have to pay for the servers, so please consider becoming a supporter at https://buymeacoff.ee/SpEcHiDe \r\n This message won\'t appear again! Enjoy the \'free\' service!!')
+    update.message.reply_text('Bridge Connected. Please subscribe to @WhatAppStatus for the bridge server informations. \r\n While this service is free, I still have to pay for the servers, so please consider becoming a supporter at https://buymeacoff.ee/SpEcHiDe \r\n This message won\'t appear again! Enjoy the \'free\' service!!')
 
-@tgbot.message_handler(commands=['unlink'])
-def unlink(message):
+def unlink(update: Update, context: CallbackContext):
     """Unlink bridge
 
     Message has the following format:
@@ -392,23 +377,22 @@ def unlink(message):
     Args:
         message: Received Telegram message.
     """
-    if message.chat.type not in ['group', 'supergroup']:
-        tgbot.reply_to(message, 'This operation can be done only in a group')
+    if context.chat_data.type not in ['group', 'supergroup']:
+        update.message.reply_text('This operation can be done only in a group')
         return
 
     # Check if it already exists
-    wa_group_name = db_get_contact_by_group(message.chat.id)
+    wa_group_name = db_get_contact_by_group(update.message.chat.id)
     if not wa_group_name:
-        tgbot.reply_to(message, 'This group is not bridged to anywhere')
+        update.message.reply_text('This group is not bridged to anywhere')
         return
 
     # Add to database
     db_rm_contact(wa_group_name)
 
-    tgbot.reply_to(message, 'Bridge has been successfully removed.')
+    update.message.reply_text('Bridge has been successfully removed.')
 
-@tgbot.message_handler(commands=['bridgeOn'])
-def bridge_on(message):
+def bridge_on(update: Update, context: CallbackContext):
     """Turn on bridge
 
     Message has the following format:
@@ -418,22 +402,21 @@ def bridge_on(message):
     Args:
         message: Received Telegram message.
     """
-    if message.chat.type not in ['group', 'supergroup']:
-        tgbot.reply_to(message, 'This operation can be done only in a group')
+    if context.chat_data.type not in ['group', 'supergroup']:
+        update.message.reply_text('This operation can be done only in a group')
         return
 
     # Check if it already exists
-    wa_group_name = db_get_contact_by_group(message.chat.id)
+    wa_group_name = db_get_contact_by_group(update.message.chat.id)
     if not wa_group_name:
-        tgbot.reply_to(message, 'This group is not bridged to anywhere')
+        update.message.reply_text('This group is not bridged to anywhere')
         return
 
-    db_toggle_bridge_by_tg(message.chat.id, True)
+    db_toggle_bridge_by_tg(update.message.chat.id, True)
 
-    tgbot.reply_to(message, 'Bridge has been turned on.')
+    update.message.reply_text('Bridge has been turned on.')
 
-@tgbot.message_handler(commands=['bridgeOff'])
-def bridge_off(message):
+def bridge_off(update: Update, context: CallbackContext):
     """Turn off bridge temporarily
 
     Message has the following format:
@@ -443,96 +426,160 @@ def bridge_off(message):
     Args:
         message: Received Telegram message.
     """
-    if message.chat.type not in ['group', 'supergroup']:
-        tgbot.reply_to(message, 'This operation can be done only in a group')
+    if context.chat_data.type not in ['group', 'supergroup']:
+        update.message.reply_text('This operation can be done only in a group')
         return
 
     # Check if it already exists
-    wa_group_name = db_get_contact_by_group(message.chat.id)
+    wa_group_name = db_get_contact_by_group(update.message.chat.id)
     if not wa_group_name:
-        tgbot.reply_to(message, 'This group is not bridged to anywhere')
+        update.message.reply_text('This group is not bridged to anywhere')
         return
 
-    db_toggle_bridge_by_tg(message.chat.id, False)
+    db_toggle_bridge_by_tg(update.message.chat.id, False)
 
-    tgbot.reply_to(message, 'Bridge has been turned off. Use `/bridgeOn` to turn it back on')
+    update.message.reply_text('Bridge has been turned off. Use `/bridgeOn` to turn it back on')
 
-@tgbot.message_handler(func=lambda message: message.chat.type in ['group', 'supergroup'])
-def relay_group_wa(message):
+#@tgbot.message_handler(func=lambda message: context.chat_data.type in ['group', 'supergroup'])
+def relay_group_wa(update: Update, context: CallbackContext):
     """ Send a message received in a bound group to the correspondending contact through Whatsapp.
 
     Args:
         message: Received Telegram message.
     """
 
-    if message.text in ['/jc', '/joincall']:
-        meet_jit_si_NEW_call_h(message)
+    if update.message.text in ['/jc', '/joincall']:
+        meet_jit_si_NEW_call_h(update, context)
         return
 
-    cid = message.chat.id
+    cid = update.message.chat.id
 
     if not db_is_bridge_enabled_by_tg(cid):
         return
 
-    uid = message.from_user.id
-    text = "<" + message.from_user.first_name + ">: " + message.text
+    uid = update.message.from_user.id
+    text = "<" + update.message.from_user.first_name + ">: " + update.message.text
 
     #if uid != SETTINGS['owner']:
-    #    tgbot.reply_to(message, 'you are not the owner of this bot')
+    #    update.message.reply_text('you are not the owner of this bot')
     #    return
 
     name = db_get_contact_by_group(group=cid)
     if not name:
         logger.info('no user is mapped to this group')
-        #tgbot.reply_to(message, 'no user is mapped to this group')
+        #update.message.reply_text('no user is mapped to this group')
         return
 
     # Relay
     logger.info('relaying message to Whatsapp')
     SIGNAL_WA.send('tgbot', contact=name, message=text)
 
-def meet_jit_si_NEW_call_h(message):
+def meet_jit_si_NEW_call_h(update: Update, context: CallbackContext):
     logger.debug('NEW pending feature')
-    cid = message.chat.id
+    cid = update.message.chat.id
     name = db_get_contact_by_group(group=cid)
     reply_message = "Click on this link to join a @GroupCall with all the users. \r\n"
     if not name:
         reply_message = "This group is not bridged to anywhere. PLEASE DO NOT ABUSE THIS FREE SERVICE."
     else:
         reply_message += "https://meet.jit.si/" + "" + wa_id_to_name(name + str(round(time.time())) + name)
-    tgbot.reply_to(message, reply_message)
+    update.message.reply_text(reply_message)
     if name:
         SIGNAL_WA.send('tgbot', contact=name, message=reply_message)
 
+def get_reason_string(message: Message) -> str:
+    reason: str = ''
+    if message.animation or message.contact or message.document or message.game\
+            or message.location or message.video or message.video_note or message.poll:
+        reason += "Whatsapp hasn't implemented this yet"
+    elif message.audio or message.sticker or message.photo:
+        reason += "The bridge hasn't implemented this yet"
+    return reason
+
 # Handles all sent documents and audio files
-@tgbot.message_handler(
-    content_types=['document', 'audio', 'photo', 'sticker', 'video',
-                   'voice', 'video_note', 'contact', 'location'])
-def handle_docs_audio(message):
+#@tgbot.message_handler(
+#    content_types=['document', 'audio', 'photo', 'sticker', 'video',
+#                   'voice', 'video_note', 'contact', 'location'])
+def handle_docs_audio(update: Update, context: CallbackContext):
     """ Handle media messages received in Telegram
     """
     # print(message)
-    cid = message.chat.id
+    cid = update.message.chat.id
 
     if not db_is_bridge_enabled_by_tg(cid):
         return
 
-    caption = message.caption
-    type = message.content_type
+    caption = update.message.caption
+    type = update.message.ATTACHMENT_TYPES
+    reason = get_reason_string(update.message)
     name = db_get_contact_by_group(group=cid)
     if not name:
         logger.info('no user is mapped to this group')
-        #tgbot.reply_to(message, 'no user is mapped to this group')
+        #update.message.reply_text('no user is mapped to this group')
         return
     link = "https://telegram.dog/dl"
-    if message.forward_from_chat.username:
-        link = "https://telegram.me/" + str(message.forward_from_chat.username) + "/" + str(message.forward_from_message_id)
+    if update.message.forward_from_chat.type in ['group', 'supergroup']:
+        link = "https://telegram.me/s/" + str(update.message.forward_from.id) + "/" + str(update.message.forward_from_message_id)
 
-    text = " " + message.from_user.first_name + " sent you " + type + \
+    text = " " + update.message.from_user.first_name + " sent you " + type + \
 	   " with caption " + caption + \
-	   ". \r\nSending large files is not supported by WhatsApp at the moment, \r\n" \
-	   " so switch to Telegram, and revolutionize the new era of messaging only on " + link + ""
+	   ". \nsadly this is not supported bechause " + reason+ \
+        "\nIf you want to view this, go to " + link + " or create your own account."
     # print(text)
     logger.info('relaying message to Whatsapp')
     SIGNAL_WA.send('tgbot', contact=name, message=text)
 
+def error(update, context):
+    """Log Errors caused by Updates."""
+    logger.warning('Update "%s" caused error "%s, in Chat %s"', update, context.error, context.chat_data)
+
+"""Start the bot."""
+# Create the Updater and pass it your bot's token.
+# Make sure to set use_context=True to use the new context based callbacks
+# Post version 12 this will no longer be necessary
+updater = Updater(SETTINGS['tg_token'], use_context=True)
+
+# Get the dispatcher to register handlers
+dp = updater.dispatcher
+
+# on different commands - answer in Telegram
+dp.add_handler(CommandHandler("start", help))
+dp.add_handler(CommandHandler("help", help))
+dp.add_handler(CommandHandler("me", me))
+dp.add_handler(CommandHandler("add", add_contact))
+dp.add_handler(CommandHandler("bind", bind))
+dp.add_handler(CommandHandler("unbind", unbind))
+dp.add_handler(CommandHandler("blacklist", blacklist))
+dp.add_handler(CommandHandler("contacts", list_contacts))
+dp.add_handler(CommandHandler("rm", rm_contact))
+dp.add_handler(CommandHandler("send", relay_wa))
+dp.add_handler(CommandHandler("unblacklist", unblacklist))
+dp.add_handler(CommandHandler("link", link))
+dp.add_handler(CommandHandler("unlink", unlink))
+dp.add_handler(CommandHandler("bridgeOn", bridge_on))
+dp.add_handler(CommandHandler("bridgeOff", bridge_off))
+
+# on noncommand i.e message - echo the message on Telegram
+dp.add_handler(MessageHandler(Filters.group, relay_group_wa))
+dp.add_handler(MessageHandler(Filters.photo, handle_docs_audio))
+dp.add_handler(MessageHandler(Filters.video_note, handle_docs_audio))
+dp.add_handler(MessageHandler(Filters.video, handle_docs_audio))
+dp.add_handler(MessageHandler(Filters.voice, handle_docs_audio))
+dp.add_handler(MessageHandler(Filters.sticker, handle_docs_audio))
+dp.add_handler(MessageHandler(Filters.location, handle_docs_audio))
+dp.add_handler(MessageHandler(Filters.game, handle_docs_audio))
+dp.add_handler(MessageHandler(Filters.document, handle_docs_audio))
+dp.add_handler(MessageHandler(Filters.contact, handle_docs_audio))
+dp.add_handler(MessageHandler(Filters.audio, handle_docs_audio))
+dp.add_handler(MessageHandler(Filters.animation, handle_docs_audio))
+
+# log all errors
+dp.add_error_handler(error)
+
+# Start the Bot
+updater.start_polling()
+
+# Run the bot until you press Ctrl-C or the process receives SIGINT,
+# SIGTERM or SIGABRT. This should be used most of the time, since
+# start_polling() is non-blocking and will stop the bot gracefully.
+#updater.idle()
