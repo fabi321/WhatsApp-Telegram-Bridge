@@ -30,18 +30,17 @@
 import time
 
 from wat_bridge.static import get_logger
-from wat_bridge.tg import tgbot
+from wat_bridge.tg import updater as tgbot
 from wat_bridge.wa import WA_STACK, _connect_signal
 
 logger = get_logger('listeners')
 
 def tg_listener():
     """Poll for new messages in Telegram."""
-    while True:
+"""    while True:
         try:
             # Continue even after an exception occurs
             logger.info('Start Telegram polling')
-            tgbot.polling(none_stop=True)
 
         except Exception as e:
             logger.error(e)
@@ -53,8 +52,7 @@ def tg_listener():
             pass
 
         # Stop polling and restart it in next iteration
-        logger.info('Stop polling')
-        tgbot.stop_polling()
+        logger.info('Stop polling')"""
 
 def wa_listener():
     """Poll for new messages in Whatsapp."""
