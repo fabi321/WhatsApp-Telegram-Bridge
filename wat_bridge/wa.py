@@ -219,7 +219,6 @@ class Download(SinkWorker):
 
     def download(self, media_message_protocolentity: MediaMessageProtocolEntity):
         if media_message_protocolentity is None:
-            logger.info('Recieved empty MediaMessageProtocolEntity')
             return None
         if isinstance(media_message_protocolentity, DownloadableMediaMessageProtocolEntity):
             logger.info(
@@ -247,6 +246,9 @@ class Download(SinkWorker):
             filename = media_message_protocolentity.display_name
             filedata = media_message_protocolentity.vcard
             fileext = "vcard"
+        elif isinstance(media_message_protocolentity, StickerDownloadableMediaMessageProtocolEntity):
+            media_info = MediaCipher.INFO_IMAGE
+            filename = "sticker"
         else:
             logger.error("Unsupported Media type: %s" % media_message_protocolentity.__class__)
             return None
@@ -271,7 +273,6 @@ class Download(SinkWorker):
             return filepath
         else:
             return None
-
 
 if not os.path.exists("./DOWNLOADS"):
     os.makedirs("./DOWNLOADS")
