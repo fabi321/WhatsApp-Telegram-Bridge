@@ -79,11 +79,22 @@ def add_contact(update: Update, context: CallbackContext):
     # Get name and phone
     args = update.message.text
     try:
-        dump, name, phone = args.split(' ', 2)
+        name: str
+        phone: str
+        _, name, phone = args.split(' ', 2)
 
         # Check if it already exists
         if get_contact(phone) or get_phone(name):
             update.message.reply_text('A contact with those details already exists')
+            return
+
+        # Check if is starts with +
+        if phone.find('+') == 0:
+            phone = phone.replace('+', '', count=1)
+
+        # Check if it contains anything exept numbers
+        if not all([type(i) == int for i in phone]):
+            update.message.reply_text('You may only enter numbers')
             return
 
         # Add to database
