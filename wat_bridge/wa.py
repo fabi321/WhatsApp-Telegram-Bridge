@@ -99,7 +99,7 @@ class WaLayer(YowsupCliLayer):
             elif isinstance(message, ExtendedTextMediaMessageProtocolEntity):
                 body = message.text
             else:
-                print(message, type(message))
+                logger.debug(str(message) + str(type(message)))
                 body = "Internal error"
 
             if body == '/getID' or body == '/link':
