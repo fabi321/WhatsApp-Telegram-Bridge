@@ -554,7 +554,7 @@ def handle_docs_audio(update: Update, context: CallbackContext):
             return
         else:
             reason = 'The Media is too large for Whatsapp'
-    elif not attachment:# and isinstance(attachment, telegram.PhotoSize):
+    elif not attachment:# and type(attachment) == list and isinstance(attachment[0], telegram.PhotoSize):
         for i in attachment:
             if attachment.size < 16 * 10 ** 6:
                 file: telegram.File = attachment.get_file()
