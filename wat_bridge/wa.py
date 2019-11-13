@@ -236,7 +236,7 @@ class Download(SinkWorker):
             filename = "video"
         elif isinstance(media_message_protocolentity, DocumentDownloadableMediaMessageProtocolEntity):
             media_info = MediaCipher.INFO_DOCUM
-            filename = media_message_protocolentity.proto.title
+            filename = media_message_protocolentity.file_name
         elif isinstance(media_message_protocolentity, ContactMediaMessageProtocolEntity):
             filename = media_message_protocolentity.display_name
             filedata = media_message_protocolentity.vcard
