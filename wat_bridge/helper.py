@@ -27,8 +27,12 @@
 
 """Helper functions."""
 
+import urllib.request
+import shutil
 import hashlib
 from wat_bridge.static import DB, CONTACT
+from yowsup.layers.protocol_media.protocolentities.iq_requestupload import RequestUploadIqProtocolEntity
+from typing import List, Dict
 
 def db_add_blacklist(phone):
     """Add a new blacklisted phone to the database.
@@ -221,3 +225,55 @@ def wa_id_to_name(val):
     else:
         return None
 
+class Media:
+    def __init__(self, type: str):
+        self._type: str = type
+
+    def get_type(self) -> str:
+        return self._type
+
+    def get_args(self) -> List[object]:
+        pass
+
+    def get_kwargs(self) -> Dict[str, str]:
+        pass
+
+
+class DataMedia(Media):
+    def __init__(self, location: str, type: str, caption: str = None):
+        if location not in RequestUploadIqProtocolEntity.TYPES_MEDIA:
+            pass
+        self._location: str = location
+        self._caption: str = caption
+        Media.__init__(self, type)
+
+    def get_args(self) -> List[str]:
+        return [self._location, self._type]
+
+    def get_kwargs(self) -> Dict[str, str]:
+        return {'caption': self._caption}
+
+
+class Location(Media):
+    def __init__(self, long: float, lat: float, name: str=None, address: str=None, url: str=None):
+        Media.__init__(self, 'location')
+        self._long: float = long
+        self._lat: float = lat
+        self._name: str = name
+        self._address: str = address
+        self._url: str = url
+
+    def get_args(self) -> List[float]:
+        return [self._lat, self._long]
+
+    def get_kwargs(self) -> Dict[str, str]:
+        return {'name': self._name, 'address': self._address, 'url': self._url}
+
+def cut(message: str) -> str:
+    _, out = message.split(' ', 1)
+    return out
+
+# Download the file from `url` and save it locally under `file_name`:
+def download_file(url: str, file_name: str):
+    with urllib.request.urlopen(url) as response, open(file_name, 'wb') as out_file:
+        shutil.copyfileobj(response, out_file)

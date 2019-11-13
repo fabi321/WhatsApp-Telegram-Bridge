@@ -34,6 +34,7 @@ from wat_bridge.helper import get_contact, get_phone, db_get_group
 from wat_bridge.static import SETTINGS, get_logger
 from wat_bridge.tg import updater as tgbot
 from wat_bridge.wa import wabot
+from wat_bridge.helper import DataMedia
 
 logger = get_logger('signals')
 
@@ -63,47 +64,26 @@ def to_tg_handler(sender, **kwargs):
     """
     phone = kwargs.get('phone')
     message = kwargs.get('message')
-    media = kwargs.get('media')
+    media: DataMedia = kwargs.get('media')
 
 
     # Check if known contact
     contact = get_contact(phone)
-    chat_id = SETTINGS['owner']
+    chat_id = db_get_group(contact)
+    if not chat_id:
+        chat_id = SETTINGS['owner']
 
     if media:
-        participant_id, message_url = message.split("=|=|=")
         # Media Messages
-        if not contact:
-            output = 'Media from #unknown\n'
-            output += 'Phone number: %s\n' % phone
-            output += 'Participant ID: %s\n' % participant_id
+        type: str = media.get_type()
+        path: str = media.get_args()[0]
+        caption: str = media.get_kwargs()['caption']
+        if type == "image":
+            tgbot.bot.send_photo(chat_id, open(path, 'rb'), caption=caption)
+        elif type == "video":
+            tgbot.bot.send_video(chat_id, open(path, "rb"), caption=caption, supports_streaming=True)
         else:
-            group = db_get_group(contact)
-            if not group:
-                output = 'Media from #%s\n' % contact
-                output += 'Participant ID: %s\n' % participant_id
-            else:
-                # Contact is bound to group
-                chat_id = group
-                output = "Media from %s\n" % participant_id
-        if message_url.startswith("LOCATION=|=|="):
-            locstr, lat, lng = message_url.split("=|=|=")
-            tgbot.bot.send_message(chat_id, output)
-            tgbot.bot.send_location(chat_id, lat, lng)
-        # vcard can be handled in a similar manner
-        elif message_url.startswith("VCARDCONTACT=|=|="):
-            constr, name, cdata = message_url.split("=|=|=")
-            # TODO: but How?
-        else:
-            mime = magic.Magic(mime=True)
-            mime_type = mime.from_file(message_url)
-            if "image" in mime_type:
-                tgbot.bot.send_photo(chat_id, open(message_url, 'rb'), caption=output)
-            elif "video" in mime_type:
-                tgbot.bot.send_video(chat_id, open(message_url, "rb"), caption=output, supports_streaming=True)
-            else:
-                tgbot.bot.send_document(chat_id, open(message_url, 'rb'), caption=output)
-            os.remove(message_url)
+            tgbot.bot.send_document(chat_id, open(path, 'rb'), caption=caption)
     else:
         # Text Messages
         if not contact:
@@ -145,6 +125,7 @@ def to_wa_handler(sender, **kwargs):
     """
     contact = kwargs.get('contact')
     message = kwargs.get('message')
+    media = kwargs.get('media')
 
     # Check if known contact
     phone = get_phone(contact)
@@ -160,4 +141,4 @@ def to_wa_handler(sender, **kwargs):
 
     logger.info('sending message to %s (%s)' % (contact, phone))
 
-    wabot.send_msg(phone=phone, message=message)
+    wabot.send_msg(phone=phone, message=message, media=media)

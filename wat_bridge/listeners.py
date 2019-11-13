@@ -31,6 +31,7 @@ import time
 
 from wat_bridge.static import get_logger
 from wat_bridge.tg import updater as tgbot
+from wat_bridge.wa import wabot
 from wat_bridge.wa import WA_STACK, _connect_signal
 
 logger = get_logger('listeners')
@@ -61,8 +62,8 @@ def wa_listener():
             # Continue even after an exception occurs
             logger.info('Start Whatsapp polling')
 
-            WA_STACK.broadcastEvent(_connect_signal)
-            WA_STACK.loop()
+            wabot.connect()
+            break
 
         except Exception as e:
             logger.error(e)

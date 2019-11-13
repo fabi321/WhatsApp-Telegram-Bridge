@@ -29,12 +29,9 @@
 
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
 from telegram import Update, Message
+import telegram
 import time
-from wat_bridge.helper import db_add_contact, db_rm_contact, \
-        db_add_blacklist, db_rm_blacklist, db_list_contacts, \
-        get_blacklist, get_contact, get_phone, is_blacklisted, \
-        db_get_group, db_set_group, db_get_contact_by_group, safe_cast, \
-        wa_id_to_name, db_toggle_bridge_by_tg, db_is_bridge_enabled_by_tg
+from wat_bridge.helper import *
 from wat_bridge.static import SETTINGS, SIGNAL_WA, get_logger
 from wat_bridge.wa import wabot
 
@@ -158,7 +155,7 @@ def unbind(update: Update, context: CallbackContext):
         return
 
     # Get name and phone
-    name = update.message.text
+    name = cut(update.message.text)
 
     if not name:
         update.message.reply_text('Syntax: /unbind <name>')
@@ -198,7 +195,7 @@ def blacklist(update: Update, context: CallbackContext):
         return
 
     # Get phone
-    phone = update.message.text
+    phone = cut(update.message.text)
 
     if not phone:
         # Return list
@@ -263,7 +260,7 @@ def rm_contact(update: Update, context: CallbackContext):
         return
 
     # Get name
-    name = update.message.text
+    name = cut(update.message.text)
 
     if not name:
         update.message.reply_text('Syntax: /rm <name>')
@@ -296,7 +293,7 @@ def relay_wa(update: Update, context: CallbackContext):
     # Get name and message
     args = update.message.text
     try:
-        dump, name, text = args.split(' ', 2)
+        _, name, text = args.split(' ', 2)
 
         # Relay
         logger.info('relaying message to Whatsapp')
@@ -320,7 +317,7 @@ def unblacklist(update: Update, context: CallbackContext):
         return
 
     # Get phone
-    phone =update.message.text
+    phone =cut(update.message.text)
 
     if not phone:
         # Return list
@@ -347,12 +344,12 @@ def link(update: Update, context: CallbackContext):
     Args:
         message: Received Telegram message.
     """
-    if context.chat_data.type not in ['group', 'supergroup']:
+    if update.message.chat.type not in ['group', 'supergroup']:
         update.message.reply_text('This operation can be done only in a group')
         return
 
     # Get name and message
-    wa_group_id = update.message.text
+    wa_group_id = cut(update.message.text)
     wa_group_name = wa_id_to_name(wa_group_id)
 
     if not wa_group_id:
@@ -377,7 +374,7 @@ def unlink(update: Update, context: CallbackContext):
     Args:
         message: Received Telegram message.
     """
-    if context.chat_data.type not in ['group', 'supergroup']:
+    if update.message.chat.type not in ['group', 'supergroup']:
         update.message.reply_text('This operation can be done only in a group')
         return
 
@@ -402,7 +399,7 @@ def bridge_on(update: Update, context: CallbackContext):
     Args:
         message: Received Telegram message.
     """
-    if context.chat_data.type not in ['group', 'supergroup']:
+    if update.message.chat.type not in ['group', 'supergroup']:
         update.message.reply_text('This operation can be done only in a group')
         return
 
@@ -426,7 +423,7 @@ def bridge_off(update: Update, context: CallbackContext):
     Args:
         message: Received Telegram message.
     """
-    if context.chat_data.type not in ['group', 'supergroup']:
+    if update.message.chat.type not in ['group', 'supergroup']:
         update.message.reply_text('This operation can be done only in a group')
         return
 
@@ -440,7 +437,7 @@ def bridge_off(update: Update, context: CallbackContext):
 
     update.message.reply_text('Bridge has been turned off. Use `/bridgeOn` to turn it back on')
 
-#@tgbot.message_handler(func=lambda message: context.chat_data.type in ['group', 'supergroup'])
+#@tgbot.message_handler(func=lambda message: update.message.chat.type in ['group', 'supergroup'])
 def relay_group_wa(update: Update, context: CallbackContext):
     """ Send a message received in a bound group to the correspondending contact through Whatsapp.
 
@@ -489,12 +486,35 @@ def meet_jit_si_NEW_call_h(update: Update, context: CallbackContext):
 
 def get_reason_string(message: Message) -> str:
     reason: str = ''
-    if message.animation or message.contact or message.document or message.game\
-            or message.location or message.video or message.video_note or message.poll:
+    if message.animation or message.game or message.poll:
         reason += "Whatsapp hasn't implemented this yet"
-    elif message.audio or message.sticker or message.photo:
+    elif message.audio or message.sticker or message.photo or message.contact or message.document\
+            or message.video or message.video_note or message.location:
         reason += "The bridge hasn't implemented this yet"
     return reason
+
+def get_type_string(message: Message) -> str:
+    if message.animation:
+        return 'video'
+    elif message.contact:
+        return 'contact'
+    elif message.document:
+        return 'document'
+    elif message.game:
+        return 'game'
+    elif message.location:
+        return 'location'
+    elif message.video or message.video_note:
+        return 'video'
+    elif message.poll:
+        return 'poll'
+    elif message.audio or message.voice:
+        return 'audio'
+    elif message.sticker:
+        return 'sticker'
+    elif message.photo:
+        return 'photo'
+    return 'other_type'
 
 # Handles all sent documents and audio files
 #@tgbot.message_handler(
@@ -509,25 +529,80 @@ def handle_docs_audio(update: Update, context: CallbackContext):
     if not db_is_bridge_enabled_by_tg(cid):
         return
 
-    caption = update.message.caption
-    type = update.message.ATTACHMENT_TYPES
-    reason = get_reason_string(update.message)
     name = db_get_contact_by_group(group=cid)
     if not name:
         logger.info('no user is mapped to this group')
         #update.message.reply_text('no user is mapped to this group')
         return
-    link = "https://telegram.dog/dl"
-    if update.message.forward_from_chat.type in ['group', 'supergroup']:
-        link = "https://telegram.me/s/" + str(update.message.forward_from.id) + "/" + str(update.message.forward_from_message_id)
+#    elif message.contact
+#            or message.location:
 
-    text = " " + update.message.from_user.first_name + " sent you " + type + \
-	   " with caption " + caption + \
-	   ". \nsadly this is not supported bechause " + reason+ \
-        "\nIf you want to view this, go to " + link + " or create your own account."
-    # print(text)
-    logger.info('relaying message to Whatsapp')
-    SIGNAL_WA.send('tgbot', contact=name, message=text)
+    reason = None
+    caption = update.message.caption
+    attachment = update.message.effective_attachment
+    if attachment and any([isinstance(attachment, i) for i in [telegram.Video, telegram.Audio, telegram.Document, telegram.VideoNote, telegram.Voice, telegram.Sticker, telegram.Animation]]):
+        if attachment.file_size < 16 * 10**6:
+            file: telegram.File = attachment.get_file()
+            path: str = './DOWNLOADS/' + attachment.file_id + '.' + attachment.mime_type.split('/')[1]
+            file.download(custom_path=path)
+            logger.info('relaying media message to Whatsapp')
+            try:
+                media: DataMedia = DataMedia(path, get_type_string(update.message), attachment.caption)
+            except:
+                media: DataMedia = DataMedia(path, get_type_string(update.message))
+            SIGNAL_WA.send('tgbot', contact=name, media=media)
+            return
+        else:
+            reason = 'The Media is too large for Whatsapp'
+    elif attachment and isinstance(attachment, telegram.PhotoSize):
+        for i in attachment:
+            if attachment.size < 16 * 10 ** 6:
+                file: telegram.File = attachment.get_file()
+                path: str = './DOWNLOADS/' + attachment.file_id + '.' + attachment.mime_type.split('/')[1]
+                file.download(custom_path=path)
+                logger.info('relaying media message to Whatsapp')
+                try:
+                    media: DataMedia = DataMedia(path, get_type_string(update.message), attachment.caption)
+                except:
+                    media: DataMedia = DataMedia(path, get_type_string(update.message))
+                SIGNAL_WA.send('tgbot', contact=name, media=media)
+                return
+            else:
+                reason = 'The Media is too large for Whatsapp'
+    elif attachment and isinstance(attachment, telegram.Contact):
+        contact: telegram.Contact = attachment
+        vcard: str = contact.vcard
+        return
+    elif attachment and isinstance(attachment, telegram.Location):
+        location: telegram.Location = attachment
+        media: Location = Location(location.longitude, location.latitude)
+        logger.info('relaying location to Whatsapp')
+        SIGNAL_WA.send('tgbot', contact=name, media=media)
+        return
+    elif attachment:
+        reason = get_reason_string(update.message)
+    if reason:
+        name = db_get_contact_by_group(group=cid)
+        type = get_type_string(update.message)
+        if not name:
+            logger.info('no user is mapped to this group')
+            #update.message.reply_text('no user is mapped to this group')
+            return
+        if not caption:
+            caption = ''
+        link = "https://telegram.dog/dl"
+        if update.message.chat.type == 'group':
+            link = 'https://t.me/' + update.message.chat.id
+        elif update.message.chat.type == 'supergroup':
+            link = update.message.link
+
+        text = " " + update.message.from_user.first_name + " sent you " + type + \
+	       " with caption " + caption + \
+    	   ". \nsadly this is not supported bechause " + reason+ \
+            "\nIf you want to view this, go to " + link + " or create your own account."
+        # print(text)
+        logger.info('relaying sorry message to Whatsapp')
+        SIGNAL_WA.send('tgbot', contact=name, message=text)
 
 def error(update, context):
     """Log Errors caused by Updates."""
@@ -560,7 +635,6 @@ dp.add_handler(CommandHandler("bridgeOn", bridge_on))
 dp.add_handler(CommandHandler("bridgeOff", bridge_off))
 
 # on noncommand i.e message - echo the message on Telegram
-dp.add_handler(MessageHandler(Filters.group, relay_group_wa))
 dp.add_handler(MessageHandler(Filters.photo, handle_docs_audio))
 dp.add_handler(MessageHandler(Filters.video_note, handle_docs_audio))
 dp.add_handler(MessageHandler(Filters.video, handle_docs_audio))
@@ -572,6 +646,7 @@ dp.add_handler(MessageHandler(Filters.document, handle_docs_audio))
 dp.add_handler(MessageHandler(Filters.contact, handle_docs_audio))
 dp.add_handler(MessageHandler(Filters.audio, handle_docs_audio))
 dp.add_handler(MessageHandler(Filters.animation, handle_docs_audio))
+dp.add_handler(MessageHandler(Filters.group, relay_group_wa))
 
 # log all errors
 dp.add_error_handler(error)
