@@ -572,6 +572,12 @@ def handle_docs_audio(update: Update, context: CallbackContext):
     elif attachment and isinstance(attachment, telegram.Contact):
         contact: telegram.Contact = attachment
         vcard: str = contact.vcard
+        path: str = create_unique_filepath('./DOWNLOADS/contact.vcard')
+        with open(path, 'w') as f:
+            for i in vcard.split('\n'):
+                f.write(i)
+        media: DataMedia = DataMedia(path, 'document')
+        SIGNAL_WA.send('tgbot', contact=name, media=media)
         return
     elif attachment and isinstance(attachment, telegram.Location):
         location: telegram.Location = attachment
