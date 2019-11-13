@@ -29,11 +29,12 @@ SOFTWARE.
 - ```git clone git@github.com:AragurDEV/yowsup.git```
 - ```virtualenv -p python3 venv```
 - ```. venv/bin/activate```
+- ```cd WhatsApp-Telegram-Bridge```
 - ```pip3 install -r requirements.txt```
-- ```cd yowsup```
+- ```cd ../yowsup```
 - ```python3 setup.py install```
 - ```cd .. ```
-- ```cd wat-bridge```
+- ```cd WhatsApp-Telegram-Bridge```
 - ```mv development.conf config.conf```
 - Edit config.conf according to the instructions given below.
 - ```sh run.sh```
