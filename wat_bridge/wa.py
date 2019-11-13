@@ -39,10 +39,6 @@ from yowsup.layers.protocol_media.protocolentities import *
 from yowsup.demos.cli.layer import YowsupCliLayer
 from yowsup.demos.common.sink_worker import SinkWorker
 from yowsup.layers.protocol_media.mediacipher import MediaCipher
-from yowsup.layers.protocol_media.protocolentities \
-    import ImageDownloadableMediaMessageProtocolEntity, AudioDownloadableMediaMessageProtocolEntity,\
-    VideoDownloadableMediaMessageProtocolEntity, DocumentDownloadableMediaMessageProtocolEntity, \
-    ContactMediaMessageProtocolEntity, DownloadableMediaMessageProtocolEntity
 from yowsup.profile.profile import YowProfile
 from yowsup.config.manager import ConfigManager
 
