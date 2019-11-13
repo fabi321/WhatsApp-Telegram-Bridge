@@ -250,7 +250,7 @@ def list_contacts(update: Update, context: CallbackContext):
     g = 0
     response = 'Contacts:\n'
     for c in contacts:
-        response += '- %s (%s)' % (c[0], c[1])
+        response += '- %s (+%s)' % (c[0], c[1])
         if c[2]:
             response += ' -> group %s' % c[2]
             g = g + 1
