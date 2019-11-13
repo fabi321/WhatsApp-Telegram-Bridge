@@ -167,17 +167,12 @@ class WaLayer(YowsupCliLayer):
             SIGNAL_TG.send('wabot', phone=sender, message=TheRealMessageToSend)
 
         if message.getType() == "media":
-            try:
+            if isinstance(message, DownloadableMediaMessageProtocolEntity):
                 filepath = download.download(message)
                 TheRealMessageToSend = message.media_type + ': <#' + contact_name + '>'
-                try:
+                if any([isinstance(message, i) for i in [VideoDownloadableMediaMessageProtocolEntity, ImageDownloadableMediaMessageProtocolEntity]]):
                     if message.caption != '':
                         TheRealMessageToSend += ': ' + message.caption
-                except:
-                    pass
-            except:
-                filepath = None
-            if filepath:
                 media_message = DataMedia(filepath, message.media_type, TheRealMessageToSend)
                 # Relay to Telegram
                 logger.info('relaying message to Telegram')
