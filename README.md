@@ -72,3 +72,21 @@ curl -i \
 
 - Replace the variables with your variables.
 
+### Extra Configuration for your Telegram bot
+```
+help - shows this help message
+add - <name> <phone> -> add a new contact to database
+bind - <name> <group id> -> bind a contact to a group
+blacklist - [<number>] show blacklisted Whatsapp phones or blacklist one
+bridgeOn - turn this bridge on
+bridgeOff - turn this bridge off
+contacts - list contacts
+link - link the group you are currently in with a Whatsapp one
+me - show che chat id you are currently in
+rm - <name> -> remove a contact from database
+send - <name> <message> -> send message to Whatsapp contact
+unbind - <name> -> unbind a contact from his group
+unblacklist - <phone> -> unblacklist a phone number
+unlink - remove the link between this group and a Whatsapp one
+```
+
