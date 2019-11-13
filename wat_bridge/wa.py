@@ -33,7 +33,7 @@ import base64
 from yowsup.layers import YowLayerEvent
 from yowsup.layers.interface import ProtocolEntityCallback
 from yowsup.layers.network import YowNetworkLayer
-from yowsup.layers.protocol_messages.protocolentities import TextMessageProtocolEntity
+from yowsup.layers.protocol_messages.protocolentities import TextMessageProtocolEntity, ExtendedTextMessageProtocolEntity
 from yowsup.stacks import YowStackBuilder
 from yowsup.layers.protocol_media.protocolentities import *
 from yowsup.demos.cli.layer import YowsupCliLayer
@@ -84,7 +84,7 @@ class WaLayer(YowsupCliLayer):
         contact_name = get_contact(participant)
 
         if not contact_name:
-            contact_name = message.getAuthor() + "-" + participant
+            contact_name = message.notify + "-" + participant
 
         # body = "<" + oidtotg + ">: " + message.getBody()
         # body = "NULL"
@@ -92,7 +92,7 @@ class WaLayer(YowsupCliLayer):
             logger.debug("is text message")
             if isinstance(message, TextMessageProtocolEntity):
                 body = message.getBody()
-            elif isinstance(message, ExtendedTextMediaMessageProtocolEntity):
+            elif isinstance(message, ExtendedTextMessageProtocolEntity):
                 body = message.text
             else:
                 logger.debug(str(message) + str(type(message)))
