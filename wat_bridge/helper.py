@@ -30,6 +30,7 @@
 import urllib.request
 import shutil
 import hashlib
+import os
 from wat_bridge.static import DB, CONTACT
 from yowsup.layers.protocol_media.protocolentities.iq_requestupload import RequestUploadIqProtocolEntity
 from typing import List, Dict
@@ -273,7 +274,14 @@ def cut(message: str) -> str:
     _, out = message.split(' ', 1)
     return out
 
-# Download the file from `url` and save it locally under `file_name`:
-def download_file(url: str, file_name: str):
-    with urllib.request.urlopen(url) as response, open(file_name, 'wb') as out_file:
-        shutil.copyfileobj(response, out_file)
+def create_unique_filepath(filepath):
+    file_dir = os.path.dirname(filepath)
+    filename = os.path.basename(filepath)
+    result_filename = filename
+    dissected = os.path.splitext(filename)
+    count = 0
+    while os.path.exists(os.path.join(file_dir, result_filename)):
+        count += 1
+        result_filename = "%s_%d%s" % (dissected[0], count, dissected[1])
+
+    return os.path.join(file_dir, result_filename)
