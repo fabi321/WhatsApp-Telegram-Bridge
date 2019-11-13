@@ -44,6 +44,7 @@ from yowsup.layers.protocol_media.protocolentities \
     VideoDownloadableMediaMessageProtocolEntity, DocumentDownloadableMediaMessageProtocolEntity, \
     ContactMediaMessageProtocolEntity, DownloadableMediaMessageProtocolEntity
 from yowsup.profile.profile import YowProfile
+from yowsup.config.manager import ConfigManager
 
 from wat_bridge.static import *
 from wat_bridge.helper import *
@@ -290,5 +291,6 @@ WA_STACK = (
 )
 
 #SETTINGS['wa_password']
-WA_STACK.setCredentials((SETTINGS['wa_phone'], ''))
+config_manager = ConfigManager()
+WA_STACK.setProfile(YowProfile(SETTINGS['wa_phone'], config_manager.load(SETTINGS['wa_phone'], profile_only=True)))
 
