@@ -87,13 +87,19 @@ class WaLayer(YowsupCliLayer):
         contact_name = get_contact(participant)
 
         if not contact_name:
-            contact_name = participant
+            contact_name = message.getAuthor() + "-" + participant
 
         # body = "<" + oidtotg + ">: " + message.getBody()
         # body = "NULL"
         if message.getType() == "text":
             logger.debug("is text message")
-            body = message.getBody()
+            if isinstance(message, TextMessageProtocolEntity):
+                body = message.getBody()
+            elif isinstance(message, ExtendedTextMediaMessageProtocolEntity):
+                body = message.text
+            else:
+                print(message, type(message))
+                body = "Internal error"
 
             if body == '/getID' or body == '/link':
                 self.send_msg(phone=sender, message="/link " + sender)
