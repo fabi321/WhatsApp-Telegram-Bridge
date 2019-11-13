@@ -414,7 +414,7 @@ def bridge_on(update: Update, context: CallbackContext):
 
     Message has the following format:
 
-        /bridgeOn
+        /bridgeon
 
     Args:
         message: Received Telegram message.
@@ -438,7 +438,7 @@ def bridge_off(update: Update, context: CallbackContext):
 
     Message has the following format:
 
-        /bridgeOff
+        /bridgeoff
 
     Args:
         message: Received Telegram message.
@@ -657,8 +657,8 @@ dp.add_handler(CommandHandler("send", relay_wa))
 dp.add_handler(CommandHandler("unblacklist", unblacklist))
 dp.add_handler(CommandHandler("link", link))
 dp.add_handler(CommandHandler("unlink", unlink))
-dp.add_handler(CommandHandler("bridgeOn", bridge_on))
-dp.add_handler(CommandHandler("bridgeOff", bridge_off))
+dp.add_handler(CommandHandler("bridgeon", bridge_on))
+dp.add_handler(CommandHandler("bridgeoff", bridge_off))
 
 # on noncommand i.e message - echo the message on Telegram
 dp.add_handler(MessageHandler(Filters.photo, handle_docs_audio))
