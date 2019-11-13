@@ -88,12 +88,9 @@ def add_contact(update: Update, context: CallbackContext):
             update.message.reply_text('A contact with those details already exists')
             return
 
-        # Check if is starts with +
-        if phone.find('+') == 0:
-            phone = phone.replace('+', '', count=1)
+        phone = secure_phone_number(phone)
 
-        # Check if it contains anything exept numbers
-        if not all([type(i) == int for i in phone]):
+        if phone == '':
             update.message.reply_text('You may only enter numbers')
             return
 
@@ -124,7 +121,7 @@ def bind(update: Update, context: CallbackContext):
     # Get name and phone
     args = update.message.text
     try:
-        dump, name, group_id = args.split(' ', 2)
+        _, name, group_id = args.split(' ', 2)
 
         group_id = safe_cast(group_id, int)
         if not group_id:
@@ -217,6 +214,12 @@ def blacklist(update: Update, context: CallbackContext):
             response += '- %s\n' % b
 
         update.message.reply_text(response)
+        return
+
+    phone = secure_phone_number(phone)
+
+    if phone == '':
+        update.message.reply_text('You may only enter numbers')
         return
 
     # Blacklist a phone
@@ -333,6 +336,12 @@ def unblacklist(update: Update, context: CallbackContext):
     if not phone:
         # Return list
         update.message.reply_text('Syntax: /unblacklist <phone>')
+        return
+
+    phone = secure_phone_number(phone)
+
+    if phone == '':
+        update.message.reply_text('You may only enter numbers')
         return
 
     # Unblacklist a phone

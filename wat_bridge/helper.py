@@ -285,3 +285,15 @@ def create_unique_filepath(filepath):
         result_filename = "%s_%d%s" % (dissected[0], count, dissected[1])
 
     return os.path.join(file_dir, result_filename)
+
+
+def secure_phone_number(phone: str) -> str:
+    # Check if is starts with +
+    if phone.find('+') == 0:
+        phone = phone.replace('+', '', count=1)
+
+    # Check if it contains anything exept numbers
+    if not all([type(i) == int for i in phone]):
+        return ''
+    return phone
+
