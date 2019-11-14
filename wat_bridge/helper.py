@@ -293,7 +293,7 @@ def secure_phone_number(phone: str) -> str:
         phone = phone.replace('+', '', count=1)
 
     # Check if it contains anything exept numbers
-    if not all([type(i) == int for i in phone]):
+    if not phone.isnumeric():
         return ''
     return phone
 
