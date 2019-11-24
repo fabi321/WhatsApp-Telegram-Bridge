@@ -21,16 +21,16 @@ SOFTWARE.
 ## How to set-up your own instance of this bot?
 
 - ```cd $WORK_DIR```
-- ```git clone git@github.com:SpEcHiDe/wat-bridge.git ```
-- ```git clone git@github.com:AragurDEV/yowsup.git```
-- ```virtualenv -p python3 venv```
-- ```. venv/bin/activate```
+- ```git clone https://github.com/fabi321/WhatsApp-Telegram-Bridge.git```
 - ```cd WhatsApp-Telegram-Bridge```
+- ```git clone https://github.com/AragurDEV/yowsup.git```
+- ```apt install python3-virtualenv```
+- ```virtualenv -p python3 venv``` or ```python3 -m virtualenv -p python3 venv```
+- ```. venv/bin/activate```
 - ```pip3 install -r requirements.txt```
-- ```cd ../yowsup```
+- ```cd yowsup```
 - ```python3 setup.py install```
 - ```cd .. ```
-- ```cd WhatsApp-Telegram-Bridge```
 - ```mv development.conf config.conf```
 - Edit config.conf according to the instructions given below.
 - ```sh run.sh```
