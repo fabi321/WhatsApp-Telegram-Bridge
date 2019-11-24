@@ -273,8 +273,10 @@ if not os.path.exists("./DOWNLOADS"):
     os.makedirs("./DOWNLOADS")
 download = Download('./DOWNLOADS/')
 
+profile: YowProfile = YowProfile(SETTINGS['wa_phone'])
+
 # Prepare stack
-wabot = WaLayer()
+wabot = WaLayer(profile)
 
 _connect_signal = YowLayerEvent(YowNetworkLayer.EVENT_STATE_CONNECT)
 
@@ -288,5 +290,5 @@ WA_STACK = (
 
 #SETTINGS['wa_password']
 config_manager = ConfigManager()
-WA_STACK.setProfile(YowProfile(SETTINGS['wa_phone'], config_manager.load(SETTINGS['wa_phone'], profile_only=True)))
+WA_STACK.setProfile(profile)
 
