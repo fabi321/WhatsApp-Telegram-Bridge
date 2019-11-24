@@ -18,10 +18,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 
-## Example
-
-[The LIVE unstable version of this Bot](https://blog.shrimadhavuk.me/posts/2017/12/31/Telegram-WhatApp/)
-
 ## How to set-up your own instance of this bot?
 
 - ```cd $WORK_DIR```
@@ -42,7 +38,7 @@ SOFTWARE.
 
 ## edit ```config.conf```
 
-- The Telegram token is obtained by talking to the *BotFather* through Telegram and creating a bot, while the owner ID can be obtained by using the `/me` command.
+- The Telegram token is obtained by talking to the *BotFather* through Telegram and creating a bot, while the owner ID can be obtained by using the `/me` command at i.e. @watgbot.
 - The database path is the full path to the file that will contain blacklist and contacts. Note that this path should be readable/writable by the user that executes the application.
 
 ### How to get yowsup-cli password?
