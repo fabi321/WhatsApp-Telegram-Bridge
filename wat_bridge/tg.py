@@ -34,6 +34,7 @@ import time
 from wat_bridge.helper import *
 from wat_bridge.static import SETTINGS, SIGNAL_WA, get_logger
 from wat_bridge.wa import wabot
+from typing import List, Tuple
 
 logger = get_logger('tg')
 
@@ -475,7 +476,11 @@ def relay_group_wa(update: Update, context: CallbackContext):
         return
 
     uid = update.message.from_user.id
-    text = "<" + update.message.from_user.first_name + ">: " + update.message.text
+    entities: Dict[telegram.MessageEntity, str] = update.message.parse_entities('text_link')
+    message: str = update.message.text
+    for i, j in entities.items():
+        message = message.replace(j, '[' + j + '](' + i.url + ')')
+    text = "<" + update.message.from_user.first_name + ">: " + message
 
     #if uid != SETTINGS['owner']:
     #    update.message.reply_text('you are not the owner of this bot')
@@ -560,7 +565,7 @@ def handle_docs_audio(update: Update, context: CallbackContext):
     reason = None
     caption = update.message.caption
     attachment = update.message.effective_attachment
-    if not attachment:# and any([isinstance(attachment, i) for i in [telegram.Video, telegram.Audio, telegram.Document, telegram.VideoNote, telegram.Voice, telegram.Sticker, telegram.Animation]]):
+    if not attachment:# and isinstance(attachment, (telegram.Video, telegram.Audio, telegram.Document, telegram.VideoNote, telegram.Voice, telegram.Sticker, telegram.Animation)):
         if attachment.file_size < 16 * 10**6:
             file: telegram.File = attachment.get_file()
             path: str = './DOWNLOADS/' + attachment.file_id + '.' + attachment.mime_type.split('/')[1]
