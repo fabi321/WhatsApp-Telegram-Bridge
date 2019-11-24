@@ -52,128 +52,131 @@ class WaLayer(YowsupCliLayer):
 
     @ProtocolEntityCallback('message')
     def on_message(self, message:TextMessageProtocolEntity):
-        """Received a message."""
-        # Parse information
-        sender = message.getFrom(full=False)
-        oidtotg = message.getFrom(full=True)
+        try:
+            """Received a message."""
+            # Parse information
+            sender = message.getFrom(full=False)
+            oidtotg = message.getFrom(full=True)
 
-        logger.debug('received message from %s' % oidtotg)
+            logger.debug('received message from %s' % oidtotg)
 
-        # Send receipt
-        self.toLower(message.ack(self.sendRead))
+            # Send receipt
+            self.toLower(message.ack(self.sendRead))
 
-        # https://github.com/tgalal/yowsup/issues/1411#issuecomment-203419530
-        # if isinstance(type(message), unicode) :
-        # message = message.encode('utf-8')
-        # entity = TextMessageProtocolEntity(message, sender)
-        # self.toLower(entity)
+            # https://github.com/tgalal/yowsup/issues/1411#issuecomment-203419530
+            # if isinstance(type(message), unicode) :
+            # message = message.encode('utf-8')
+            # entity = TextMessageProtocolEntity(message, sender)
+            # self.toLower(entity)
 
-        # Do stuff
-        if is_blacklisted(sender):
-            logger.debug('phone is blacklisted: %s' % sender)
-            return
+            # Do stuff
+            if is_blacklisted(sender):
+                logger.debug('phone is blacklisted: %s' % sender)
+                return
 
-        participant = message.getParticipant()
-        if participant:
-            participant = participant.strip("@g.us")
-        else:
-            participant = sender
-        if participant.find('@s.whatsapp.net') >= 0:
-            participant = participant.strip('@s.whatsapp.net')
-
-        contact_name = get_contact(participant)
-
-        if not contact_name:
-            contact_name = message.notify + "-" + participant
-
-        # body = "<" + oidtotg + ">: " + message.getBody()
-        # body = "NULL"
-        if message.getType() == "text":
-            logger.debug("is text message")
-            if isinstance(message, TextMessageProtocolEntity):
-                body = message.getBody()
-            elif isinstance(message, ExtendedTextMessageProtocolEntity):
-                body = message.text
+            participant = message.getParticipant()
+            if participant:
+                participant = participant.strip("@g.us")
             else:
-                logger.debug(str(message) + str(type(message)))
-                body = "Internal error"
+                participant = sender
+            if participant.find('@s.whatsapp.net') >= 0:
+                participant = participant.strip('@s.whatsapp.net')
 
-            if body == '/getID' or body == '/link':
-                self.send_msg(phone=sender, message="/link " + sender)
+            contact_name = get_contact(participant)
 
-                HelpInstructions = "Please send the above message in the Telegram group that you would like to bridge!"
-                self.send_msg(phone=sender, message=HelpInstructions)
-                # self.send_msg(phone=sender, message="new registrations are closed. please contact https://youtu.be/9r-yzKfL8xw for bridging Telegram ")
-                return
-            elif body[0:5] == '/add ':
-                if participant == sender:
-                    name = body[5:]
-                    if not name:
-                        ReplyMessage = "Syntax: /add <name>"
-                    else:
-                        if contact_name:
-                            db_rm_contact(contact_name)
-                            db_add_contact(name, sender)
-                            ReplyMessage = "name already existed. name removed and added. Pleae verify with ```/me```"
+            if not contact_name:
+                contact_name = message.notify + "-" + participant
+
+            # body = "<" + oidtotg + ">: " + message.getBody()
+            # body = "NULL"
+            if message.getType() == "text":
+                logger.debug("is text message")
+                if isinstance(message, TextMessageProtocolEntity):
+                    body = message.getBody()
+                elif isinstance(message, ExtendedTextMessageProtocolEntity):
+                    body = message.text
+                else:
+                    logger.debug(str(message) + str(type(message)))
+                    body = "Internal error"
+
+                if body == '/getID' or body == '/link':
+                    self.send_msg(phone=sender, message="/link " + sender)
+
+                    HelpInstructions = "Please send the above message in the Telegram group that you would like to bridge!"
+                    self.send_msg(phone=sender, message=HelpInstructions)
+                    # self.send_msg(phone=sender, message="new registrations are closed. please contact https://youtu.be/9r-yzKfL8xw for bridging Telegram ")
+                    return
+                elif body[0:5] == '/add ':
+                    if participant == sender:
+                        name = body[5:]
+                        if not name:
+                            ReplyMessage = "Syntax: /add <name>"
                         else:
-                            db_add_contact(name, sender)
-                            ReplyMessage = "name added. Pleae verify with ```/me```"
-                    self.send_msg(phone=sender, message=ReplyMessage)
+                            if contact_name:
+                                db_rm_contact(contact_name)
+                                db_add_contact(name, sender)
+                                ReplyMessage = "name already existed. name removed and added. Pleae verify with ```/me```"
+                            else:
+                                db_add_contact(name, sender)
+                                ReplyMessage = "name added. Pleae verify with ```/me```"
+                        self.send_msg(phone=sender, message=ReplyMessage)
+                        return
+                elif body == '/me':
+                    if not contact_name:
+                        ReplyMessage = "Please send ```/add NAME``` to add you to my contacts."
+                    else:
+                        ReplyMessage = "I have saved your name as " + contact_name + ". You can edit your name in my contacts by sending ```/add NAME```!"
+                    if participant == sender:
+                        self.send_msg(phone=sender, message=ReplyMessage)
+                        return
+                elif body == '/bridgeOn':
+                    toggle = db_toggle_bridge_by_wa(sender, True)
+
+                    if toggle is None:
+                        Message = 'This group is not bridged to anywhere. Use ```/link``` to start bridging.'
+                    else:
+                        Message = 'Bridge has been turned on!'
+
+                    self.send_msg(phone=sender, message=Message)
+
                     return
-            elif body == '/me':
-                if not contact_name:
-                    ReplyMessage = "Please send ```/add NAME``` to add you to my contacts."
-                else:
-                    ReplyMessage = "I have saved your name as " + contact_name + ". You can edit your name in my contacts by sending ```/add NAME```!"
-                if participant == sender:
-                    self.send_msg(phone=sender, message=ReplyMessage)
+
+                elif body == '/bridgeOff':
+                    toggle = db_toggle_bridge_by_wa(sender, False)
+
+                    if toggle is None:
+                        Message = 'This group is not bridged to anywhere. Use ```/link``` to start bridging.'
+                    else:
+                        Message = 'Bridge has been turned off. Use ```/bridgeOn``` to turn it back on.'
+
+                    self.send_msg(phone=sender, message=Message)
+
                     return
-            elif body == '/bridgeOn':
-                toggle = db_toggle_bridge_by_wa(sender, True)
 
-                if toggle is None:
-                    Message = 'This group is not bridged to anywhere. Use ```/link``` to start bridging.'
-                else:
-                    Message = 'Bridge has been turned on!'
+                if not db_is_bridge_enabled_by_wa(sender) and message.isGroupMessage():
+                    return
 
-                self.send_msg(phone=sender, message=Message)
+                logger.info("prefix WHO send this message, to message")
+                TheRealMessageToSend = "<#" + contact_name + ">: " + body
 
-                return
-
-            elif body == '/bridgeOff':
-                toggle = db_toggle_bridge_by_wa(sender, False)
-
-                if toggle is None:
-                    Message = 'This group is not bridged to anywhere. Use ```/link``` to start bridging.'
-                else:
-                    Message = 'Bridge has been turned off. Use ```/bridgeOn``` to turn it back on.'
-
-                self.send_msg(phone=sender, message=Message)
-
-                return
-
-            if not db_is_bridge_enabled_by_wa(sender) and message.isGroupMessage():
-                return
-
-            logger.info("prefix WHO send this message, to message")
-            TheRealMessageToSend = "<#" + contact_name + ">: " + body
-
-            # Relay to Telegram
-            logger.info('relaying message to Telegram')
-            SIGNAL_TG.send('wabot', phone=sender, message=TheRealMessageToSend)
-
-        if message.getType() == "media":
-            if isinstance(message, DownloadableMediaMessageProtocolEntity):
-                filepath = download.download(message)
-                TheRealMessageToSend = message.media_type + ': <#' + contact_name + '>'
-                if isinstance(message, VideoDownloadableMediaMessageProtocolEntity) and message.caption != '':
-                    TheRealMessageToSend += ': ' + message.caption
-                elif isinstance(message, ImageDownloadableMediaMessageProtocolEntity) and message.caption != '':
-                    TheRealMessageToSend += ': ' + message.caption
-                media_message = DataMedia(filepath, message.media_type, TheRealMessageToSend)
                 # Relay to Telegram
                 logger.info('relaying message to Telegram')
-                SIGNAL_TG.send('wabot', phone=sender, media=media_message)
+                SIGNAL_TG.send('wabot', phone=sender, message=TheRealMessageToSend)
+
+            if message.getType() == "media":
+                if isinstance(message, DownloadableMediaMessageProtocolEntity):
+                    filepath = download.download(message)
+                    TheRealMessageToSend = message.media_type + ': <#' + contact_name + '>'
+                    if isinstance(message, VideoDownloadableMediaMessageProtocolEntity) and message.caption != '':
+                        TheRealMessageToSend += ': ' + message.caption
+                    elif isinstance(message, ImageDownloadableMediaMessageProtocolEntity) and message.caption != '':
+                        TheRealMessageToSend += ': ' + message.caption
+                    media_message = DataMedia(filepath, message.media_type, TheRealMessageToSend)
+                    # Relay to Telegram
+                    logger.info('relaying message to Telegram')
+                    SIGNAL_TG.send('wabot', phone=sender, media=media_message)
+        except:
+            pass
 
     def send_msg(self, **kwargs):
         """Send a message.
