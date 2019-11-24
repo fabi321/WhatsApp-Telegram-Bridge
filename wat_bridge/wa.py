@@ -175,8 +175,8 @@ class WaLayer(YowsupCliLayer):
                     # Relay to Telegram
                     logger.info('relaying message to Telegram')
                     SIGNAL_TG.send('wabot', phone=sender, media=media_message)
-        except:
-            pass
+        except Exception as x:
+            print(x.with_traceback())
 
     def send_msg(self, **kwargs):
         """Send a message.
