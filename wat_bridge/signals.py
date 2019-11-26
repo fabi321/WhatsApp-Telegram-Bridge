@@ -35,6 +35,7 @@ from wat_bridge.static import SETTINGS, get_logger
 from wat_bridge.tg import updater as tgbot
 from wat_bridge.wa import wabot
 from wat_bridge.helper import DataMedia
+from wat_bridge.helper import secure_phone_number
 
 logger = get_logger('signals')
 
@@ -85,6 +86,16 @@ def to_tg_handler(sender, **kwargs):
         else:
             tgbot.bot.send_document(chat_id, open(path, 'rb'), caption=caption)
     else:
+        new_messaage: str = ''
+        for i in message.split('@'):
+            if secure_phone_number(i.split()[0]) == '':
+                new_messaage += '@' + i
+            else:
+                contact_name = get_contact(i.split()[0])
+                new_messaage += '<' + ('#' + contact_name if contact_name else '@' + i.split()[0]) + '>'
+                for j in range(1, len(i.split())):
+                    new_messaage += ' ' + i.split()[j]
+        message = new_messaage[1:]
         # Text Messages
         if not contact:
             # Unknown sender
