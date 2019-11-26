@@ -29,6 +29,7 @@
 
 import uuid
 import base64
+import traceback
 
 from yowsup.layers import YowLayerEvent
 from yowsup.layers.interface import ProtocolEntityCallback
@@ -161,7 +162,8 @@ class WaLayer(YowsupCliLayer):
 
                 # Relay to Telegram
                 logger.info('relaying message to Telegram')
-                SIGNAL_TG.send('wabot', phone=sender, message=TheRealMessageToSend)
+                if sender:
+                    SIGNAL_TG.send('wabot', phone=sender, message=TheRealMessageToSend)
 
             if message.getType() == "media":
                 if isinstance(message, DownloadableMediaMessageProtocolEntity):
@@ -176,7 +178,7 @@ class WaLayer(YowsupCliLayer):
                     logger.info('relaying message to Telegram')
                     SIGNAL_TG.send('wabot', phone=sender, media=media_message)
         except Exception as x:
-            print(x.with_traceback())
+            traceback.print_exc()
 
     def send_msg(self, **kwargs):
         """Send a message.
