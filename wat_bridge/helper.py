@@ -292,8 +292,9 @@ def secure_phone_number(phone: str) -> str:
     if phone.find('+') == 0:
         phone = phone.replace('+', '', count=1)
 
-    # Check if it contains anything exept numbers
-    if not phone.isnumeric():
-        return ''
+    # Check if it contains anything exept numbers for eac segment
+    for i in phone.split('-'):
+        if not i.isnumeric():
+            return ''
     return phone
 
