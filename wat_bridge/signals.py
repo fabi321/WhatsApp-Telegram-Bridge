@@ -35,7 +35,7 @@ from wat_bridge.static import SETTINGS, get_logger
 from wat_bridge.tg import updater as tgbot
 from wat_bridge.wa import wabot
 from wat_bridge.helper import DataMedia
-from wat_bridge.helper import secure_phone_number
+from wat_bridge.helper import replace_phone_with_name
 
 logger = get_logger('signals')
 
@@ -79,6 +79,7 @@ def to_tg_handler(sender, **kwargs):
         type: str = media.get_type()
         path: str = media.get_args()[0]
         caption: str = media.get_kwargs()['caption']
+        caption = replace_phone_with_name(caption)
         if type == "image":
             tgbot.bot.send_photo(chat_id, open(path, 'rb'), caption=caption)
         elif type == "video":
@@ -86,16 +87,7 @@ def to_tg_handler(sender, **kwargs):
         else:
             tgbot.bot.send_document(chat_id, open(path, 'rb'), caption=caption)
     else:
-        new_messaage: str = ''
-        for i in message.split('@'):
-            if secure_phone_number(i.split()[0]) == '':
-                new_messaage += '@' + i
-            else:
-                contact_name = get_contact(i.split()[0])
-                new_messaage += '<' + ('#' + contact_name if contact_name else '@' + i.split()[0]) + '>'
-                for j in range(1, len(i.split())):
-                    new_messaage += ' ' + i.split()[j]
-        message = new_messaage[1:]
+        message = replace_phone_with_name(message)
         # Text Messages
         if not contact:
             # Unknown sender

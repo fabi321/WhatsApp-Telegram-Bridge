@@ -298,3 +298,15 @@ def secure_phone_number(phone: str) -> str:
             return ''
     return phone
 
+def replace_phone_with_name(message: str) -> str:
+    new_messaage: str = ''
+    for i in message.split('@'):
+        if secure_phone_number(i.split()[0]) == '':
+            new_messaage += '@' + i
+        else:
+            contact_name = get_contact(i.split()[0])
+            new_messaage += '<' + ('#' + contact_name if contact_name else '@' + i.split()[0]) + '>'
+            for j in range(1, len(i.split())):
+                new_messaage += ' ' + i.split()[j]
+    return new_messaage[1:]
+
