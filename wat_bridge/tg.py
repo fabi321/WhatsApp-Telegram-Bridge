@@ -31,12 +31,16 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, Callb
 from telegram import Update, Message
 import telegram
 import time
+import os
+import mimetypes
 from wat_bridge.helper import *
 from wat_bridge.static import SETTINGS, SIGNAL_WA, get_logger
 from wat_bridge.wa import wabot
 from typing import List, Tuple
 
 logger = get_logger('tg')
+
+yowsup_cli_supports_sending_media = False
 
 # Create handlers
 
@@ -565,32 +569,47 @@ def handle_docs_audio(update: Update, context: CallbackContext):
     reason = None
     caption = update.message.caption
     attachment = update.message.effective_attachment
-    if not attachment:# and isinstance(attachment, (telegram.Video, telegram.Audio, telegram.Document, telegram.VideoNote, telegram.Voice, telegram.Sticker, telegram.Animation)):
+    if attachment and isinstance(attachment, (telegram.Video, telegram.Audio, telegram.Document, telegram.VideoNote, telegram.Voice, telegram.Sticker, telegram.Animation)):
         if attachment.file_size < 16 * 10**6:
             file: telegram.File = attachment.get_file()
-            path: str = './DOWNLOADS/' + attachment.file_id + '.' + attachment.mime_type.split('/')[1]
+            path: str = './DOWNLOADS/' + attachment.file_id + mimetypes.guess_extension(attachment.mime_type)
             file.download(custom_path=path)
             logger.info('relaying media message to Whatsapp')
             try:
-                media: DataMedia = DataMedia(path, get_type_string(update.message), attachment.caption)
+                caption: str = attachment.caption
             except:
-                media: DataMedia = DataMedia(path, get_type_string(update.message))
-            SIGNAL_WA.send('tgbot', contact=name, media=media)
+                caption: str = ''
+            caption: str = get_type_string(update.message) + ': <' + update.message.from_user.first_name + '>' + (': ' + caption if caption != '' else '')
+            media: DataMedia = DataMedia(path, get_type_string(update.message), caption)
+            if yowsup_cli_supports_sending_media:
+                SIGNAL_WA.send('tgbot', contact=name, media=media)
+            else:
+                os.system('scp ' + path + ' ' + SETTINGS['public_path'])
+                SIGNAL_WA.send('tgbot', contact=name, message=caption + ' at ' + SETTINGS['public_reachable'] + path.split('/')[len(path.split('/')) - 1])
             return
         else:
             reason = 'The Media is too large for Whatsapp'
-    elif not attachment:# and type(attachment) == list and isinstance(attachment[0], telegram.PhotoSize):
+    elif attachment and type(attachment) == list and isinstance(attachment[0], telegram.PhotoSize):
         for i in attachment:
             if attachment.size < 16 * 10 ** 6:
                 file: telegram.File = attachment.get_file()
-                path: str = './DOWNLOADS/' + attachment.file_id + '.' + attachment.mime_type.split('/')[1]
+                path: str = './DOWNLOADS/' + attachment.file_id + mimetypes.guess_extension(attachment.mime_type)
                 file.download(custom_path=path)
                 logger.info('relaying media message to Whatsapp')
                 try:
-                    media: DataMedia = DataMedia(path, get_type_string(update.message), attachment.caption)
+                    caption: str = attachment.caption
                 except:
-                    media: DataMedia = DataMedia(path, get_type_string(update.message))
-                SIGNAL_WA.send('tgbot', contact=name, media=media)
+                    caption: str = ''
+                caption: str = get_type_string(update.message) + ': <' + update.message.from_user.first_name + '>' + (
+                    ': ' + caption if caption != '' else '')
+                media: DataMedia = DataMedia(path, get_type_string(update.message), caption)
+                if yowsup_cli_supports_sending_media:
+                    SIGNAL_WA.send('tgbot', contact=name, media=media)
+                else:
+                    os.system('scp ' + path + ' ' + SETTINGS['public_path'])
+                    SIGNAL_WA.send('tgbot', contact=name,
+                                   message=caption + ' at ' + SETTINGS['public_reachable'] + path.split('/')[
+                                       len(path.split('/')) - 1])
                 return
             else:
                 reason = 'The Media is too large for Whatsapp'
@@ -602,7 +621,13 @@ def handle_docs_audio(update: Update, context: CallbackContext):
             for i in vcard.split('\n'):
                 f.write(i)
         media: DataMedia = DataMedia(path, 'document')
-        SIGNAL_WA.send('tgbot', contact=name, media=media)
+        if yowsup_cli_supports_sending_media:
+            SIGNAL_WA.send('tgbot', contact=name, media=media)
+        else:
+            os.system('scp ' + path + ' ' + SETTINGS['public_path'])
+            SIGNAL_WA.send('tgbot', contact=name,
+                           message='Contact at ' + SETTINGS['public_reachable'] + path.split('/')[
+                               len(path.split('/')) - 1])
         return
     elif attachment and isinstance(attachment, telegram.Location):
         location: telegram.Location = attachment

@@ -82,6 +82,9 @@ def init_bridge():
     SETTINGS['owner'] = parser.getint('tg', 'owner')
     SETTINGS['tg_token'] = parser.get('tg', 'token')
 
+    SETTINGS['public_path'] = parser.get('public', 'path')
+    SETTINGS['public_reachable'] = parser.get('public', 'address')
+
     # TinyDB
     global DB
     DB = TinyDB(parser.get('db', 'path'))
