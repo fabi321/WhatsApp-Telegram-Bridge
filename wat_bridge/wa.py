@@ -30,6 +30,7 @@
 import uuid
 import base64
 import traceback
+import time
 
 from yowsup.layers import YowLayerEvent
 from yowsup.layers.interface import ProtocolEntityCallback
@@ -194,6 +195,10 @@ class WaLayer(YowsupCliLayer):
             return
 
         message = kwargs.get('message')
+
+        while not self.connected:
+            logger.info('Waiting for WA to log in before relaying message')
+            time.sleep(1)
 
         if phone.find('/link ') == 0:
             phone = phone.replace('/link ', '', 1)
