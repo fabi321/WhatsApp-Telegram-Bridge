@@ -31,6 +31,7 @@ import uuid
 import base64
 import traceback
 import time
+import mimetypes
 
 from yowsup.layers import YowLayerEvent
 from yowsup.layers.interface import ProtocolEntityCallback
@@ -270,7 +271,7 @@ class Download(SinkWorker):
                 return None
 
         if fileext is None:
-            fileext = media_message_protocolentity.mimetype.split('/')[1].split(';')[0]
+            fileext = mimetypes.guess_extension(media_message_protocolentity.mimetype)
         filename_full = "%s.%s" % (filename, fileext)
         filepath = self._create_unique_filepath(os.path.join(self._storage_dir, filename_full))
         if self._write(filedata, filepath):
