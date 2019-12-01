@@ -71,6 +71,10 @@ class WaLayer(YowsupCliLayer):
             # entity = TextMessageProtocolEntity(message, sender)
             # self.toLower(entity)
 
+            if not sender:
+                logger.warning('Empty sender')
+                return
+
             # Do stuff
             if is_blacklisted(sender):
                 logger.debug('phone is blacklisted: %s' % sender)
@@ -163,8 +167,7 @@ class WaLayer(YowsupCliLayer):
 
                 # Relay to Telegram
                 logger.info('relaying message to Telegram')
-                if sender:
-                    SIGNAL_TG.send('wabot', phone=sender, message=TheRealMessageToSend)
+                SIGNAL_TG.send('wabot', phone=sender, message=TheRealMessageToSend)
 
             if message.getType() == "media":
                 if isinstance(message, DownloadableMediaMessageProtocolEntity):
