@@ -515,10 +515,10 @@ def meet_jit_si_NEW_call_h(update: Update, context: CallbackContext):
 
 def get_reason_string(message: Message) -> str:
     reason: str = ''
-    if message.animation or message.game or message.poll:
+    if message.game or message.poll:
         reason += "Whatsapp hasn't implemented this yet"
     elif message.audio or message.sticker or message.photo or message.contact or message.document\
-            or message.video or message.video_note or message.location:
+            or message.video or message.video_note or message.location or message.animation:
         reason += "The bridge hasn't implemented this yet"
     return reason
 
