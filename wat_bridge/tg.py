@@ -575,11 +575,7 @@ def handle_docs_audio(update: Update, context: CallbackContext):
             path: str = './DOWNLOADS/' + attachment.file_id + mimetypes.guess_extension(attachment.mime_type)
             file.download(custom_path=path)
             logger.info('relaying media message to Whatsapp')
-            try:
-                caption: str = attachment.caption
-            except:
-                caption: str = ''
-            caption: str = get_type_string(update.message) + ': <' + update.message.from_user.first_name + '>' + (': ' + caption if caption != '' else '')
+            caption: str = get_type_string(update.message) + ': <' + update.message.from_user.first_name + '>' + (': ' + caption if caption else '')
             media: DataMedia = DataMedia(path, get_type_string(update.message), caption)
             if yowsup_cli_supports_sending_media:
                 SIGNAL_WA.send('tgbot', contact=name, media=media)
@@ -596,12 +592,8 @@ def handle_docs_audio(update: Update, context: CallbackContext):
                 path: str = './DOWNLOADS/' + attachment.file_id + mimetypes.guess_extension(attachment.mime_type)
                 file.download(custom_path=path)
                 logger.info('relaying media message to Whatsapp')
-                try:
-                    caption: str = attachment.caption
-                except:
-                    caption: str = ''
                 caption: str = get_type_string(update.message) + ': <' + update.message.from_user.first_name + '>' + (
-                    ': ' + caption if caption != '' else '')
+                    ': ' + caption if caption else '')
                 media: DataMedia = DataMedia(path, get_type_string(update.message), caption)
                 if yowsup_cli_supports_sending_media:
                     SIGNAL_WA.send('tgbot', contact=name, media=media)
