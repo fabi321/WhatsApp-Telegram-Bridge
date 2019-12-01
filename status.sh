@@ -1,4 +1,7 @@
-#!/bin/sh
+#!/bin/bash
+PREV_PWD=$PWD
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+cd $DIR
 while :
 do
 for PID in `cat log.pid`
@@ -18,3 +21,4 @@ do
 done
 sleep 10
 done
+cd $PREV_PWD
