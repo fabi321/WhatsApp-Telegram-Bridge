@@ -255,6 +255,7 @@ class Download(SinkWorker):
         elif isinstance(media_message_protocolentity, StickerDownloadableMediaMessageProtocolEntity):
             media_info = MediaCipher.INFO_IMAGE
             filename = "sticker"
+            fileext = "webp"
         else:
             logger.error("Unsupported Media type: %s" % media_message_protocolentity.__class__)
             return None
@@ -271,7 +272,7 @@ class Download(SinkWorker):
                 return None
 
         if fileext is None:
-            fileext = mimetypes.guess_extension(media_message_protocolentity.mimetype)
+            fileext = mimetypes.guess_extension(media_message_protocolentity.mimetype).replace('.', '', count=1)
         filename_full = "%s.%s" % (filename, fileext)
         filepath = self._create_unique_filepath(os.path.join(self._storage_dir, filename_full))
         if self._write(filedata, filepath):
