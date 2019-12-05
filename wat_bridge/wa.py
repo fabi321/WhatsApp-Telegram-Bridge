@@ -174,9 +174,7 @@ class WaLayer(YowsupCliLayer):
                 if isinstance(message, DownloadableMediaMessageProtocolEntity):
                     filepath = download.download(message)
                     TheRealMessageToSend = message.media_type + ': <#' + contact_name + '>'
-                    if isinstance(message, VideoDownloadableMediaMessageProtocolEntity) and message.caption != '':
-                        TheRealMessageToSend += ': ' + message.caption
-                    elif isinstance(message, ImageDownloadableMediaMessageProtocolEntity) and message.caption != '':
+                    if isinstance(message, (VideoDownloadableMediaMessageProtocolEntity, ImageDownloadableMediaMessageProtocolEntity)) and message.caption and message.caption != '':
                         TheRealMessageToSend += ': ' + message.caption
                     media_message = DataMedia(filepath, message.media_type, TheRealMessageToSend)
                     # Relay to Telegram
