@@ -272,7 +272,7 @@ class Download(SinkWorker):
                 return None
 
         if fileext is None:
-            fileext = mimetypes.guess_extension(media_message_protocolentity.mimetype).replace('.', '', count=1)
+            fileext = mimetypes.guess_extension(media_message_protocolentity.mimetype).replace('.', '', 1)
         filename_full = "%s.%s" % (filename, fileext)
         filepath = self._create_unique_filepath(os.path.join(self._storage_dir, filename_full))
         if self._write(filedata, filepath):
