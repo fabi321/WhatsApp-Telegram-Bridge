@@ -584,7 +584,7 @@ def handle_docs_audio(update: Update, context: CallbackContext):
                 SIGNAL_WA.send('tgbot', contact=name, message=caption + ' at ' + SETTINGS['public_reachable'] + path.split('/')[len(path.split('/')) - 1])
             return
         else:
-            reason = 'The Media is too large for Whatsapp'
+            reason = 'the Media is too large for Whatsapp'
     elif attachment and type(attachment) == list and isinstance(attachment[0], telegram.PhotoSize):
         for i in attachment:
             if attachment.size < 16 * 10 ** 6:
@@ -604,7 +604,7 @@ def handle_docs_audio(update: Update, context: CallbackContext):
                                        len(path.split('/')) - 1])
                 return
             else:
-                reason = 'The Media is too large for Whatsapp'
+                reason = 'the Media is too large for Whatsapp'
     elif attachment and isinstance(attachment, telegram.Contact):
         contact: telegram.Contact = attachment
         vcard: str = contact.vcard
@@ -646,7 +646,7 @@ def handle_docs_audio(update: Update, context: CallbackContext):
 
         text = " " + update.message.from_user.first_name + " sent you " + type + \
 	       " with caption " + caption + \
-    	   ". \nsadly this is not supported bechause " + reason+ \
+    	   " \nsadly this is not supported bechause " + reason+ \
             "\nIf you want to view this, go to " + link + " or create your own account."
         # print(text)
         logger.info('relaying sorry message to Whatsapp')
