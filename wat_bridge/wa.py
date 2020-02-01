@@ -27,7 +27,6 @@
 
 """Code for the Whatsapp side of the bridge."""
 
-import uuid
 import base64
 import traceback
 import time
@@ -52,6 +51,11 @@ logger = get_logger('wa')
 
 class WaLayer(YowsupCliLayer):
     """Defines the yowsup layer for interacting with Whatsapp."""
+
+    def __init__(self):
+        super().__init__()
+        self.presence_name('Warping to Telegram')
+        self.profile_setStatus('Wants to go back to Telegram')
 
     @ProtocolEntityCallback('message')
     def on_message(self, message:TextMessageProtocolEntity):
@@ -216,6 +220,15 @@ class WaLayer(YowsupCliLayer):
         elif isinstance(media,  Location):
             self.location(phone, *media.get_args(), **media.get_kwargs())
 
+    @ProtocolEntityCallback("notification")
+    def onNotification(self, notification):
+        notificationData = notification.__str__()
+        if notificationData:
+            self.output(notificationData, tag = "Notification")
+        else:
+            SIGNAL_TG.send('wabot', message="From :%s, Type: %s" % (self.jidToAlias(notification.getFrom()), notification.getType()), tag = "Notification")
+
+
 
 class Download(SinkWorker):
     def __init__(self, storage_dir):
@@ -286,7 +299,7 @@ download = Download('./DOWNLOADS/')
 profile: YowProfile = YowProfile(SETTINGS['wa_phone'])
 
 # Prepare stack
-wabot = WaLayer(profile)
+wabot = WaLayer()
 
 _connect_signal = YowLayerEvent(YowNetworkLayer.EVENT_STATE_CONNECT)
 

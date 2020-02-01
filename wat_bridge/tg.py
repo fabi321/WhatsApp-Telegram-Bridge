@@ -31,12 +31,9 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, Callb
 from telegram import Update, Message
 import telegram
 import time
-import os
 import mimetypes
 from wat_bridge.helper import *
 from wat_bridge.static import SETTINGS, SIGNAL_WA, get_logger
-from wat_bridge.wa import wabot
-from typing import List, Tuple
 
 logger = get_logger('tg')
 
@@ -387,7 +384,7 @@ def link(update: Update, context: CallbackContext):
     # Add to database
     db_set_group(wa_group_name, update.message.chat.id)
 
-    update.message.reply_text('Bridge Connected. Please subscribe to @WhatAppStatus for the bridge server informations. \r\n While this service is free, I still have to pay for the servers, so please consider becoming a supporter at https://buymeacoff.ee/SpEcHiDe \r\n This message won\'t appear again! Enjoy the \'free\' service!!')
+    update.message.reply_text('Bridge Connected. Thanks to @linuxistgut, this bot is running.')
 
 def unlink(update: Update, context: CallbackContext):
     """Unlink bridge
