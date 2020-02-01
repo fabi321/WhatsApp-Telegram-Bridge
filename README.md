@@ -55,7 +55,7 @@ yowsup-cli registration -R CODE -m MCC -n MNC -C CC -p CCXXXXXXXXXX -E android
 
 - Replace ```CODE``` with the WhatsApp verification code received, in the number that you had given.
 
-### Extra Configuration (To Get the Log Files Delivered to your Telegram ChatBox)
+## Extra Configuration (To Get the Log Files Delivered to your Telegram ChatBox)
 
 - create a file named `UploadToTG.sh` with the following contents.
 
@@ -68,7 +68,10 @@ curl -i \
 
 - Replace the variables with your variables.
 
-### Extra Configuration for your Telegram bot
+## Extra Configuration for your Telegram bot
+Send to Botfather: ```/setcommands```.    
+Select your bot.  
+Send these commands:
 ```
 help - -> shows this help message
 add - <name> <phone> -> add a new contact to database
@@ -78,11 +81,12 @@ bridgeon - -> turn this bridge on
 bridgeoff - -> turn this bridge off
 contacts - -> list contacts
 link - -> link the group you are currently in with a Whatsapp one
-me - -> show che chat id you are currently in
+me - -> show the chat id you are currently in
 rm - <name> -> remove a contact from database
 send - <name> <message> -> send message to Whatsapp contact
 unbind - <name> -> unbind a contact from his group
 unblacklist - <phone> -> unblacklist a phone number
 unlink - -> remove the link between this group and a Whatsapp one
 ```
-
+Send ```/setprivacy```.  
+Select your bot and set it to ```Disable```.
