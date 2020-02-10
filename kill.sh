@@ -7,5 +7,5 @@ do
   kill -9 ${j}
 done
 rm log.pid
-rm log.txt
+mv ./log.txt prev_logs/$(date +"%Y-%m-%dT%T")_log.txt
 cd $PREV_PWD
