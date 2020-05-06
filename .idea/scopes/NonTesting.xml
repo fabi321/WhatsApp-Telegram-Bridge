@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="NonTesting" pattern="file[WhatsApp-Telegram-Bridge]:*.py/&amp;&amp;!file[WhatsApp-Telegram-Bridge]:tests//*" />
+</component>
