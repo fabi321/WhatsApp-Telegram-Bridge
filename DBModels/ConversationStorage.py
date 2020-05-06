@@ -1,7 +1,9 @@
+from typing import List
+
 from persistent import Persistent
 from persistent.list import PersistentList
+
 from DBModels.MessageStorage import MessageStorage
-from typing import List
 from Utilities.typings import TgMessageId, WaMessageId
 
 

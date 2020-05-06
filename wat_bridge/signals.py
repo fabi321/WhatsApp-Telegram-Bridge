@@ -27,17 +27,17 @@
 
 """Signal handlers."""
 
-import os
-import magic
 import sys
+
+from wat_bridge.helper import DataMedia
 from wat_bridge.helper import get_contact, get_phone, db_get_group
+from wat_bridge.helper import replace_phone_with_name
 from wat_bridge.static import SETTINGS, get_logger
 from wat_bridge.tg import updater as tgbot
 from wat_bridge.wa import wabot
-from wat_bridge.helper import DataMedia
-from wat_bridge.helper import replace_phone_with_name
 
 logger = get_logger('signals')
+
 
 def split_string(text, chars_per_string):
     """
@@ -49,9 +49,11 @@ def split_string(text, chars_per_string):
     """
     return [text[i:i + chars_per_string] for i in range(0, len(text), chars_per_string)]
 
+
 def sigint_handler(signal, frame):
     """Function used as handler for SIGINT to terminate program."""
     sys.exit(0)
+
 
 def to_tg_handler(sender, **kwargs):
     """Handle signals sent to Telegram.
@@ -66,7 +68,6 @@ def to_tg_handler(sender, **kwargs):
     phone = kwargs.get('phone')
     message = kwargs.get('message')
     media: DataMedia = kwargs.get('media')
-
 
     # Check if known contact
     contact = get_contact(phone)

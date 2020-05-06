@@ -1,7 +1,9 @@
-from persistent import Persistent
-from Utilities.typings import FilePath, AccountName, AuthID
-from os import path
 from abc import abstractmethod
+from os import path
+
+from persistent import Persistent
+
+from Utilities.typings import FilePath, AccountName, AuthID
 
 
 class UserStorage(Persistent):

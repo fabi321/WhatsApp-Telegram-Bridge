@@ -1,6 +1,7 @@
-from typing import List
-from Utilities.typings import TgMessageId
 from time import sleep
+from typing import List
+
+from Utilities.typings import TgMessageId
 
 
 class MessagePipe(object):

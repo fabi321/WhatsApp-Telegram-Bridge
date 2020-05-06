@@ -40,7 +40,6 @@ init_bridge()
 from wat_bridge.listeners import tg_listener, wa_listener
 from wat_bridge.signals import sigint_handler, to_tg_handler, to_wa_handler
 
-
 if __name__ == '__main__':
     # Setup signaling
     signal.signal(signal.SIGINT, sigint_handler)

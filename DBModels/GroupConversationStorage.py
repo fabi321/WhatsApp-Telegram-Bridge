@@ -1,8 +1,9 @@
+from typing import List
+
 from DBModels.ConversationStorage import ConversationStorage
+from DBModels.MessageStorage import MessageStorage
 from DBModels.TgGroupStorage import TgGroupStorage
 from DBModels.WaGroupStorage import WaGroupStorage
-from DBModels.MessageStorage import MessageStorage
-from typing import List
 
 
 class GroupConversationStorage(ConversationStorage):

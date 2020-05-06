@@ -1,8 +1,10 @@
-from persistent import Persistent
-from Utilities.typings import GroupDescription, GroupName, AuthID
-from persistent.list import PersistentList
 from typing import List
+
+from persistent import Persistent
+from persistent.list import PersistentList
+
 from DBModels.UserStorage import UserStorage
+from Utilities.typings import GroupDescription, GroupName, AuthID
 
 
 class GroupStorage(Persistent):

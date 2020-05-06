@@ -1,7 +1,8 @@
+from typing import List
+
 from DBModels.GroupStorage import GroupStorage
 from DBModels.WaUserStorage import WaUserStorage
 from Utilities.typings import WaGroupId, GroupDescription, GroupName
-from typing import List
 
 
 class WaGroupStorage(GroupStorage):

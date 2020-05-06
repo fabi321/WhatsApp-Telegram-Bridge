@@ -27,17 +27,20 @@
 
 """Code for the Telegram side of the bridge."""
 
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
-from telegram import Update, Message
-import telegram
-import time
 import mimetypes
+import time
+
+import telegram
+from telegram import Update, Message
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
+
 from wat_bridge.helper import *
 from wat_bridge.static import SETTINGS, SIGNAL_WA, get_logger
 
 logger = get_logger('tg')
 
 yowsup_cli_supports_sending_media = False
+
 
 # Create handlers
 
@@ -48,13 +51,14 @@ def start(update: Update, context: CallbackContext):
         message: Received Telegram message.
     """
     response = ('Source Code available here: https://github.com/SpEcHiDe/wat-bridge \r\n'
-		'Please read https://blog.shrimadhavuk.me/posts/2017/12/31/Telegram-WhatApp/ to know how to use the bot! \r\n'
-		'Terms and Consitions: https://backend.shrimadhavuk.me/TermsAndConditions \r\n'
-		'Privacy Policy: https://backend.shrimadhavuk.me/PrivacyPolicy \r\n'
-		'\r\n New Year Hobby Project by @rmedgar, @SpEcHlDe, @SubinSiby, and many more .. \r\n'
-               )
+                'Please read https://blog.shrimadhavuk.me/posts/2017/12/31/Telegram-WhatApp/ to know how to use the bot! \r\n'
+                'Terms and Consitions: https://backend.shrimadhavuk.me/TermsAndConditions \r\n'
+                'Privacy Policy: https://backend.shrimadhavuk.me/PrivacyPolicy \r\n'
+                '\r\n New Year Hobby Project by @rmedgar, @SpEcHlDe, @SubinSiby, and many more .. \r\n'
+                )
 
     update.message.reply_text(response)
+
 
 def me(update: Update, context: CallbackContext):
     """Get user ID.
@@ -63,6 +67,7 @@ def me(update: Update, context: CallbackContext):
         message: Received Telegram message.
     """
     update.message.reply_text(update.message.chat.id)
+
 
 def add_contact(update: Update, context: CallbackContext):
     """Add a new Whatsapp contact to the database.
@@ -187,6 +192,7 @@ def unbind(update: Update, context: CallbackContext):
 
     update.message.reply_text('Unbound from group')
 
+
 def blacklist(update: Update, context: CallbackContext):
     """Blacklist a Whatsapp phone.
 
@@ -234,6 +240,7 @@ def blacklist(update: Update, context: CallbackContext):
 
     update.message.reply_text('Phone has been blacklisted')
 
+
 def list_contacts(update: Update, context: CallbackContext):
     """List stored contacts.
 
@@ -260,6 +267,7 @@ def list_contacts(update: Update, context: CallbackContext):
     response += str(len(contacts)) + " Contacts in " + str(g) + ' Groups'
 
     update.message.reply_text(response)
+
 
 def rm_contact(update: Update, context: CallbackContext):
     """Remove a Whatsapp contact from the database.
@@ -292,6 +300,7 @@ def rm_contact(update: Update, context: CallbackContext):
 
     update.message.reply_text('Contact removed')
 
+
 def relay_wa(update: Update, context: CallbackContext):
     """Send a message to a contact through Whatsapp.
 
@@ -302,7 +311,7 @@ def relay_wa(update: Update, context: CallbackContext):
     Args:
         message: Received Telegram message.
     """
-    #if update.message.chat.id != SETTINGS['owner']:
+    # if update.message.chat.id != SETTINGS['owner']:
     #    update.message.reply_text('you are not the owner of this bot')
     #    return
 
@@ -317,6 +326,7 @@ def relay_wa(update: Update, context: CallbackContext):
     except:
         update.message.reply_text('Syntax: /send <name> <message>')
         return
+
 
 def unblacklist(update: Update, context: CallbackContext):
     """Unblacklist a Whatsapp phone.
@@ -333,7 +343,7 @@ def unblacklist(update: Update, context: CallbackContext):
         return
 
     # Get phone
-    phone =cut(update.message.text)
+    phone = cut(update.message.text)
 
     if not phone:
         # Return list
@@ -355,6 +365,7 @@ def unblacklist(update: Update, context: CallbackContext):
     db_rm_blacklist(phone)
 
     update.message.reply_text('Phone has been unblacklisted')
+
 
 def link(update: Update, context: CallbackContext):
     """Link a WhatsApp group
@@ -386,6 +397,7 @@ def link(update: Update, context: CallbackContext):
 
     update.message.reply_text('Bridge Connected. Thanks to @linuxistgut, this bot is running.')
 
+
 def unlink(update: Update, context: CallbackContext):
     """Unlink bridge
 
@@ -411,6 +423,7 @@ def unlink(update: Update, context: CallbackContext):
 
     update.message.reply_text('Bridge has been successfully removed.')
 
+
 def bridge_on(update: Update, context: CallbackContext):
     """Turn on bridge
 
@@ -434,6 +447,7 @@ def bridge_on(update: Update, context: CallbackContext):
     db_toggle_bridge_by_tg(update.message.chat.id, True)
 
     update.message.reply_text('Bridge has been turned on.')
+
 
 def bridge_off(update: Update, context: CallbackContext):
     """Turn off bridge temporarily
@@ -459,7 +473,8 @@ def bridge_off(update: Update, context: CallbackContext):
 
     update.message.reply_text('Bridge has been turned off. Use `/bridgeOn` to turn it back on')
 
-#@tgbot.message_handler(func=lambda message: update.message.chat.type in ['group', 'supergroup'])
+
+# @tgbot.message_handler(func=lambda message: update.message.chat.type in ['group', 'supergroup'])
 def relay_group_wa(update: Update, context: CallbackContext):
     """ Send a message received in a bound group to the correspondending contact through Whatsapp.
 
@@ -483,19 +498,20 @@ def relay_group_wa(update: Update, context: CallbackContext):
         message = message.replace(j, '[' + j + '](' + i.url + ')')
     text = "<" + update.message.from_user.first_name + ">: " + message
 
-    #if uid != SETTINGS['owner']:
+    # if uid != SETTINGS['owner']:
     #    update.message.reply_text('you are not the owner of this bot')
     #    return
 
     name = db_get_contact_by_group(group=cid)
     if not name:
         logger.info('no user is mapped to this group')
-        #update.message.reply_text('no user is mapped to this group')
+        # update.message.reply_text('no user is mapped to this group')
         return
 
     # Relay
     logger.info('relaying message to Whatsapp')
     SIGNAL_WA.send('tgbot', contact=name, message=text)
+
 
 def meet_jit_si_NEW_call_h(update: Update, context: CallbackContext):
     logger.debug('NEW pending feature')
@@ -510,14 +526,16 @@ def meet_jit_si_NEW_call_h(update: Update, context: CallbackContext):
     if name:
         SIGNAL_WA.send('tgbot', contact=name, message=reply_message)
 
+
 def get_reason_string(message: Message) -> str:
     reason: str = ''
     if message.game or message.poll:
         reason += "Whatsapp hasn't implemented this yet"
-    elif message.audio or message.sticker or message.photo or message.contact or message.document\
+    elif message.audio or message.sticker or message.photo or message.contact or message.document \
             or message.video or message.video_note or message.location or message.animation:
         reason += "The bridge hasn't implemented this yet"
     return reason
+
 
 def get_type_string(message: Message) -> str:
     if message.animation:
@@ -542,8 +560,9 @@ def get_type_string(message: Message) -> str:
         return 'photo'
     return 'other_type'
 
+
 # Handles all sent documents and audio files
-#@tgbot.message_handler(
+# @tgbot.message_handler(
 #    content_types=['document', 'audio', 'photo', 'sticker', 'video',
 #                   'voice', 'video_note', 'contact', 'location'])
 def handle_docs_audio(update: Update, context: CallbackContext):
@@ -558,27 +577,32 @@ def handle_docs_audio(update: Update, context: CallbackContext):
     name = db_get_contact_by_group(group=cid)
     if not name:
         logger.info('no user is mapped to this group')
-        #update.message.reply_text('no user is mapped to this group')
+        # update.message.reply_text('no user is mapped to this group')
         return
-#    elif message.contact
-#            or message.location:
+    #    elif message.contact
+    #            or message.location:
 
     reason = None
     caption = update.message.caption
     attachment = update.message.effective_attachment
-    if attachment and isinstance(attachment, (telegram.Video, telegram.Audio, telegram.Document, telegram.VideoNote, telegram.Voice, telegram.Sticker, telegram.Animation)):
-        if attachment.file_size < 16 * 10**6:
+    if attachment and isinstance(attachment, (
+    telegram.Video, telegram.Audio, telegram.Document, telegram.VideoNote, telegram.Voice, telegram.Sticker,
+    telegram.Animation)):
+        if attachment.file_size < 16 * 10 ** 6:
             file: telegram.File = attachment.get_file()
             path: str = './DOWNLOADS/' + attachment.file_id + mimetypes.guess_extension(attachment.mime_type)
             file.download(custom_path=path)
             logger.info('relaying media message to Whatsapp')
-            caption: str = get_type_string(update.message) + ': <' + update.message.from_user.first_name + '>' + (': ' + caption if caption else '')
+            caption: str = get_type_string(update.message) + ': <' + update.message.from_user.first_name + '>' + (
+                ': ' + caption if caption else '')
             media: DataMedia = DataMedia(path, get_type_string(update.message), caption)
             if yowsup_cli_supports_sending_media:
                 SIGNAL_WA.send('tgbot', contact=name, media=media)
             else:
                 os.system('scp ' + path + ' ' + SETTINGS['public_path'])
-                SIGNAL_WA.send('tgbot', contact=name, message=caption + ' at ' + SETTINGS['public_reachable'] + path.split('/')[len(path.split('/')) - 1])
+                SIGNAL_WA.send('tgbot', contact=name,
+                               message=caption + ' at ' + SETTINGS['public_reachable'] + path.split('/')[
+                                   len(path.split('/')) - 1])
             return
         else:
             reason = 'the Media is too large for Whatsapp'
@@ -631,7 +655,7 @@ def handle_docs_audio(update: Update, context: CallbackContext):
         type = get_type_string(update.message)
         if not name:
             logger.info('no user is mapped to this group')
-            #update.message.reply_text('no user is mapped to this group')
+            # update.message.reply_text('no user is mapped to this group')
             return
         if not caption:
             caption = ''
@@ -642,16 +666,18 @@ def handle_docs_audio(update: Update, context: CallbackContext):
             link = update.message.link
 
         text = " " + update.message.from_user.first_name + " sent you " + type + \
-	       " with caption " + caption + \
-    	   " \nsadly this is not supported bechause " + reason+ \
-            "\nIf you want to view this, go to " + link + " or create your own account."
+               " with caption " + caption + \
+               " \nsadly this is not supported bechause " + reason + \
+               "\nIf you want to view this, go to " + link + " or create your own account."
         # print(text)
         logger.info('relaying sorry message to Whatsapp')
         SIGNAL_WA.send('tgbot', contact=name, message=text)
 
+
 def error(update, context):
     """Log Errors caused by Updates."""
     logger.warning('Update "%s" caused error "%s, in Chat %s"', update, context.error, context.chat_data)
+
 
 """Start the bot."""
 # Create the Updater and pass it your bot's token.
@@ -702,4 +728,4 @@ updater.start_polling()
 # Run the bot until you press Ctrl-C or the process receives SIGINT,
 # SIGTERM or SIGABRT. This should be used most of the time, since
 # start_polling() is non-blocking and will stop the bot gracefully.
-#updater.idle()
+# updater.idle()

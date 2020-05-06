@@ -1,10 +1,11 @@
-from DBModels.WaGroupStorage import WaGroupStorage
-from DBModels.WaUserStorage import WaUserStorage
+from typing import List
+
+from DBModels.ConversationStorage import ConversationStorage
+from DBModels.MessageStorage import MessageStorage
 from DBModels.TgBotStorage import TgBotStorage
 from DBModels.TgUserStorage import TgUserStorage
-from DBModels.MessageStorage import MessageStorage
-from DBModels.ConversationStorage import ConversationStorage
-from typing import List
+from DBModels.WaGroupStorage import WaGroupStorage
+from DBModels.WaUserStorage import WaUserStorage
 
 
 class UserConversationStorage(ConversationStorage):

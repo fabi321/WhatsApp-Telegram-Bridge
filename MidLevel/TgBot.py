@@ -1,14 +1,15 @@
-from Utilities.typings import AccountName, TgBotName, TgBotToken
-from Utilities.config import Config
+import time
+from random import randint
 from typing import List, Dict
+
 from pytglib.client import Telegram
 from pytglib.functions import Message
 from pytglib.utils import AsyncResult
-from random import randint
-import time
 
+from Utilities.config import Config
+from Utilities.typings import AccountName, TgBotName, TgBotToken
 
-botfather_id: int = 123# TODO: find it out
+botfather_id: int = 123  # TODO: find it out
 
 
 class TgBot():

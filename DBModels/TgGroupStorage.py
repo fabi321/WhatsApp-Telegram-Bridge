@@ -1,7 +1,8 @@
+from typing import List
+
 from DBModels.GroupStorage import GroupStorage
 from DBModels.TgBotStorage import TgBotStorage
 from Utilities.typings import GroupDescription, GroupName, TgGroupId
-from typing import List
 
 
 class TgGroupStorage(GroupStorage):

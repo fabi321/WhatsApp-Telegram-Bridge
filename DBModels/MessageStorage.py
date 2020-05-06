@@ -1,10 +1,13 @@
 from __future__ import annotations
-from persistent import Persistent
-from DBModels.WaUserStorage import WaUserStorage
-from DBModels.TgUserStorage import TgUserStorage
-from Utilities.typings import TgMessageId, WaMessageId, MessageText
+
 from typing import Optional
+
+from persistent import Persistent
+
 from Attachments.GenericAttachment import GenericAttachment
+from DBModels.TgUserStorage import TgUserStorage
+from DBModels.WaUserStorage import WaUserStorage
+from Utilities.typings import TgMessageId, WaMessageId, MessageText
 
 
 class MessageStorage(Persistent):

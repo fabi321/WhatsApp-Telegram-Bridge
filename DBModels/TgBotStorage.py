@@ -1,7 +1,8 @@
 from __future__ import annotations
+
+from DBModels import WaUserStorage
 from DBModels.UserStorage import UserStorage
 from Utilities.typings import TgBotId, TgBotToken
-from DBModels import WaUserStorage
 
 
 class TgBotStorage(UserStorage):

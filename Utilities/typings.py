@@ -1,6 +1,3 @@
-from typing import NewType
-
-
 class WaNumber(int):
     pass
 

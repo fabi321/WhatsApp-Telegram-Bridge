@@ -1,5 +1,5 @@
-from DBModels.UserStorage import UserStorage
 from DBModels.TgBotStorage import TgBotStorage
+from DBModels.UserStorage import UserStorage
 from Utilities.typings import WaNumber, AccountName, TgBotId, TgBotToken, FilePath
 
 

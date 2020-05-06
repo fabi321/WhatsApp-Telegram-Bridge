@@ -30,6 +30,7 @@
 import logging
 import os
 import sys
+
 import blinker
 from six.moves import configparser
 from tinydb import TinyDB, Query
@@ -45,6 +46,7 @@ CONTACT = Query()
 # Signals
 SIGNAL_TG = blinker.signal('TO_TG')
 SIGNAL_WA = blinker.signal('TO_WA')
+
 
 def get_logger(name):
     """ Get a logger with the given name. """
@@ -63,6 +65,7 @@ def get_logger(name):
     logger.addHandler(handler)
 
     return logger
+
 
 def init_bridge():
     """Parse the configuration file and set relevant variables."""

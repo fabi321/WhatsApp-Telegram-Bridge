@@ -28,26 +28,28 @@
 """Code for the Whatsapp side of the bridge."""
 
 import base64
-import traceback
-import time
 import mimetypes
+import time
+import traceback
 
+from yowsup.config.manager import ConfigManager
+from yowsup.demos.cli.layer import YowsupCliLayer
+from yowsup.demos.common.sink_worker import SinkWorker
 from yowsup.layers import YowLayerEvent
 from yowsup.layers.interface import ProtocolEntityCallback
 from yowsup.layers.network import YowNetworkLayer
-from yowsup.layers.protocol_messages.protocolentities import TextMessageProtocolEntity, ExtendedTextMessageProtocolEntity
-from yowsup.stacks import YowStackBuilder
-from yowsup.layers.protocol_media.protocolentities import *
-from yowsup.demos.cli.layer import YowsupCliLayer
-from yowsup.demos.common.sink_worker import SinkWorker
 from yowsup.layers.protocol_media.mediacipher import MediaCipher
+from yowsup.layers.protocol_media.protocolentities import *
+from yowsup.layers.protocol_messages.protocolentities import TextMessageProtocolEntity, \
+    ExtendedTextMessageProtocolEntity
 from yowsup.profile.profile import YowProfile
-from yowsup.config.manager import ConfigManager
+from yowsup.stacks import YowStackBuilder
 
-from wat_bridge.static import *
 from wat_bridge.helper import *
+from wat_bridge.static import *
 
 logger = get_logger('wa')
+
 
 class WaLayer(YowsupCliLayer):
     """Defines the yowsup layer for interacting with Whatsapp."""
@@ -58,7 +60,7 @@ class WaLayer(YowsupCliLayer):
         self.profile_setStatus('Wants to go back to Telegram')
 
     @ProtocolEntityCallback('message')
-    def on_message(self, message:TextMessageProtocolEntity):
+    def on_message(self, message: TextMessageProtocolEntity):
         try:
             """Received a message."""
             # Parse information
@@ -178,7 +180,8 @@ class WaLayer(YowsupCliLayer):
                 if isinstance(message, DownloadableMediaMessageProtocolEntity):
                     filepath = download.download(message)
                     TheRealMessageToSend = message.media_type + ': <#' + contact_name + '>'
-                    if isinstance(message, (VideoDownloadableMediaMessageProtocolEntity, ImageDownloadableMediaMessageProtocolEntity)) and message.caption and message.caption != '':
+                    if isinstance(message, (VideoDownloadableMediaMessageProtocolEntity,
+                                            ImageDownloadableMediaMessageProtocolEntity)) and message.caption and message.caption != '':
                         TheRealMessageToSend += ': ' + message.caption
                     media_message = DataMedia(filepath, message.media_type, TheRealMessageToSend)
                     # Relay to Telegram
@@ -217,17 +220,17 @@ class WaLayer(YowsupCliLayer):
         if isinstance(media, DataMedia):
             self.media_send(phone, *media.get_args(), **media.get_kwargs())
 
-        elif isinstance(media,  Location):
+        elif isinstance(media, Location):
             self.location(phone, *media.get_args(), **media.get_kwargs())
 
     @ProtocolEntityCallback("notification")
     def onNotification(self, notification):
         notificationData = notification.__str__()
         if notificationData:
-            self.output(notificationData, tag = "Notification")
+            self.output(notificationData, tag="Notification")
         else:
-            SIGNAL_TG.send('wabot', message="From :%s, Type: %s" % (self.jidToAlias(notification.getFrom()), notification.getType()), tag = "Notification")
-
+            SIGNAL_TG.send('wabot', message="From :%s, Type: %s" % (
+            self.jidToAlias(notification.getFrom()), notification.getType()), tag="Notification")
 
 
 class Download(SinkWorker):
@@ -292,6 +295,7 @@ class Download(SinkWorker):
         else:
             return None
 
+
 if not os.path.exists("./DOWNLOADS"):
     os.makedirs("./DOWNLOADS")
 download = Download('./DOWNLOADS/')
@@ -305,13 +309,12 @@ _connect_signal = YowLayerEvent(YowNetworkLayer.EVENT_STATE_CONNECT)
 
 WA_STACK = (
     YowStackBuilder()
-	.pushDefaultLayers()
-	# .pushDefaultLayers(False)
-	.push(wabot)
-	.build()
+        .pushDefaultLayers()
+        # .pushDefaultLayers(False)
+        .push(wabot)
+        .build()
 )
 
-#SETTINGS['wa_password']
+# SETTINGS['wa_password']
 config_manager = ConfigManager()
 WA_STACK.setProfile(profile)
-

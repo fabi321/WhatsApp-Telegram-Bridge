@@ -30,14 +30,15 @@
 import time
 
 from wat_bridge.static import get_logger
-from wat_bridge.tg import updater as tgbot
 from wat_bridge.wa import wabot
-from wat_bridge.wa import WA_STACK, _connect_signal
 
 logger = get_logger('listeners')
 
+
 def tg_listener():
     """Poll for new messages in Telegram."""
+
+
 """    while True:
         try:
             # Continue even after an exception occurs
@@ -54,6 +55,7 @@ def tg_listener():
 
         # Stop polling and restart it in next iteration
         logger.info('Stop polling')"""
+
 
 def wa_listener():
     """Poll for new messages in Whatsapp."""
