@@ -4,3 +4,4 @@ blinker
 tqdm
 python-magic
 zope.index
+python-telegram
