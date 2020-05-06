@@ -5,10 +5,10 @@ from Handlers.GeneralStorageManager import GeneralStorageManager
 from Utilities.typings import TgBotId
 
 
-class BotManager(GeneralStorageManager):
+class TgBotHandler(GeneralStorageManager):
     def __init__(self, bot_id: TgBotId):
         super().__init__()
-        bot_settings: TgBotStorage = self._connection.root().bots[bot_id]
+        self.bot_settings: TgBotStorage = self._connection.root().bots[bot_id]
 
     def __call__(self, *args, **kwargs):
         self.start_bot()
