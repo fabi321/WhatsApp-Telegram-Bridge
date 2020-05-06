@@ -1,0 +1,3 @@
+- send message to user: `MessageUser:msg_id:user_id`
+- send message to group: `MessageGroup:msg_id:group_id`
+- quit program: `Quit`
