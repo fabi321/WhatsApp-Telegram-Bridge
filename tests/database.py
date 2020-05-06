@@ -109,17 +109,10 @@ class DatabaseTest(unittest.TestCase):
         self.assertEqual(user_storage.get_picture(), picture_path, msg='got different picture_path than given')
 
     def test_user_storage_auth_id(self):
-        class Subclass(UserStorage):
-            def __init__(self, id):
-                name: AccountName = AccountName('name')
-                super().__init__(name=name)
-                self.id = id
         test_strings: Dict[str, str] = {'123': '123', '-123': 'm123', '12-3': '12m3'}
         for i, j in test_strings.items():
-            user_storage: Subclass = Subclass(i)
-            self.assertEqual(user_storage.auth_id(), j, msg='wrong auth_string generation')
-            self.assertEqual(str(user_storage), i, msg='wrong string result')
-            self.assertIsInstance(str(user_storage), str, msg="str() method doesn't return str")
+            auth_string: AuthID = AuthID(i)
+            self.assertEqual(auth_string, j, msg='wrong auth_string generation')
 
     def test_tg_user_storage_creation(self):
         user_id, user_name, user_storage = self.get_tg_user_storage()
