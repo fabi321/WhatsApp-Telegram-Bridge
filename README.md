@@ -24,10 +24,11 @@ SOFTWARE.
 - ```git clone https://github.com/fabi321/WhatsApp-Telegram-Bridge.git```
 - ```cd WhatsApp-Telegram-Bridge```
 - ```git clone https://github.com/AragurDEV/yowsup.git```
-- ```apt install python3-virtualenv```
+- ```apt install python3-virtualenv apache2-utils```
 - ```virtualenv -p python3 venv``` or ```python3 -m virtualenv -p python3 venv```
 - ```. venv/bin/activate```
 - ```pip3 install -r requirements.txt```
+- ```pip3 install git+https://github.com/iTeam-co/pytglib```
 - ```cd yowsup```
 - ```python3 setup.py install```
 - ```cd .. ```

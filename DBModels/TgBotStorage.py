@@ -1,0 +1,18 @@
+from __future__ import annotations
+from DBModels.UserStorage import UserStorage
+from Utilities.typings import TgBotId, TgBotToken
+from DBModels import WaUserStorage
+
+
+class TgBotStorage(UserStorage):
+    def __init__(self, id: TgBotId, token: TgBotToken, wa_user: WaUserStorage.WaUserStorage):
+        assert isinstance(wa_user, WaUserStorage.WaUserStorage)
+        super().__init__(name=wa_user.name, picture=wa_user.picture, picture_path=wa_user.picture_path)
+        assert isinstance(id, TgBotId)
+        self.id: TgBotId = id
+        assert isinstance(token, TgBotToken)
+        self.token: TgBotToken = token
+        self.wa_user: WaUserStorage.WaUserStorage = wa_user
+
+    def get_type_name(self) -> str:
+        return 'TgBot'
