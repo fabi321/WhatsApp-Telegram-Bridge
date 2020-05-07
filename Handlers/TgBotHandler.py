@@ -19,6 +19,12 @@ class TgBotHandler(GeneralStorageManager):
     def __call__(self, *args, **kwargs):
         self.start_bot()
 
+    def endless_loop(self):
+        status = True
+        while status:
+            pipe_output: str = self.pipe.read_pipe()
+            status = self.handle_pipe_output(pipe_output)
+
     def handle_pipe_output(self, pipe_string: str):
         splitted: List[str] = pipe_string.split(':')
         if splitted[0] == 'MessageUser':
@@ -33,9 +39,12 @@ class TgBotHandler(GeneralStorageManager):
             self._commit()
         elif splitted[0] == 'Quit':
             self.__del__()
+            return False
+        return True
 
     def __del__(self):
         self.stop_bot()
+        self._connection.close()
 
     @abstractmethod
     def start_bot(self):
