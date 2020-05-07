@@ -21,13 +21,13 @@ class WaUserStorage(UserStorage):
 
     def generate_password(self) -> Password:
         password: Password = Password(token_urlsafe(16))
-        salt: bytes = gensalt(13)
+        salt: bytes = gensalt(8)
         self.password = hashpw(password=password.encode(), salt=salt)
         return password
 
     def change_password(self, password: Password):
         assert isinstance(password, Password)
-        salt: bytes = gensalt(13)
+        salt: bytes = gensalt(8)
         self.password = hashpw(password=password.encode(), salt=salt)
 
     def get_password_hash(self) -> str:
