@@ -5,3 +5,5 @@ tqdm
 python-magic
 zope.index
 python-telegram
+yowsup2
+bcrypt

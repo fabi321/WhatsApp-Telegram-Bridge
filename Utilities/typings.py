@@ -59,3 +59,7 @@ class AuthID(str):
         value = value.replace('-', 'm')
         value = value.replace('+', 'p')
         return str.__new__(cls, value)
+
+
+class Password(str):
+    pass

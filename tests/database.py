@@ -3,6 +3,7 @@ import unittest
 from typing import Dict, Tuple
 
 from ZODB import DB
+from bcrypt import checkpw
 
 from Attachments.GenericAttachment import GenericAttachment
 from DBModels.ConversationStorage import ConversationStorage
@@ -129,6 +130,23 @@ class DatabaseTest(unittest.TestCase):
                       msg='WaUserStorage of TgBotStorage is not exactly the same as  original WaUserStorage')
         with self.assertRaises(AssertionError, msg='accepted integer as id'):
             WaUserStorage(id=123, name=user_name, tg_bot_id=bot_id, tg_bot_token=bot_token)
+
+    def test_wa_user_storage_password_handling(self):
+        _, _, _, _, user_storage = self.get_wa_user_storage()
+        self.assertEqual(user_storage.password, b'changeme', msg='got invalid default "password"')
+        with self.assertRaises(AttributeError, msg='returned password hash while no password was set'):
+            user_storage.get_password_hash()
+        password: Password = user_storage.generate_password()
+        self.assertTrue(checkpw(password.encode(), user_storage.password),
+                        msg='password was checked unsuccessfully after generate_password')
+        password: Password = Password('abc')
+        user_storage.change_password(password)
+        self.assertTrue(checkpw(password.encode(), user_storage.password),
+                        msg='password was checked unsuccessfully after change_password')
+        with self.assertRaises(AssertionError, msg='change_password accepted invalid password'):
+            user_storage.change_password('abc')
+        self.assertEqual(user_storage.password, user_storage.get_password_hash().encode(),
+                         msg='get_password_hash returned different password hash')
 
     def test_tg_bot_storage_creation(self):
         user_id, user_name, bot_id, bot_token, user_storage = self.get_wa_user_storage()
