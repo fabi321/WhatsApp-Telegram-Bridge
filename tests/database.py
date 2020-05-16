@@ -7,11 +7,15 @@ from bcrypt import checkpw
 
 from Attachments.GenericAttachment import GenericAttachment
 from DBModels.ConversationStorage import ConversationStorage
+from DBModels.GroupConversationStorage import GroupConversationStorage
 from DBModels.GroupStorage import GroupStorage
 from DBModels.MessageStorage import MessageStorage
 from DBModels.TgBotStorage import TgBotStorage
+from DBModels.TgGroupStorage import TgGroupStorage
 from DBModels.TgUserStorage import TgUserStorage
+from DBModels.UserConversationStorage import UserConversationStorage
 from DBModels.UserStorage import UserStorage
+from DBModels.WaGroupStorage import WaGroupStorage
 from DBModels.WaUserStorage import WaUserStorage
 from Utilities.typings import *
 
@@ -75,6 +79,34 @@ class DatabaseTest(unittest.TestCase):
         group_description: GroupDescription = GroupDescription('def')
         group_storage: GroupStorage = GroupStorage(name=group_name, description=group_description)
         return group_name, group_description, group_storage
+
+    def get_tg_group_storage(self) -> Tuple[GroupName, GroupDescription, TgGroupId, TgGroupStorage]:
+        group_name, group_description, _ = self.get_group_storage()
+        tg_group_id: TgGroupId = TgGroupId(123)
+        group_storage: TgGroupStorage = TgGroupStorage(id=tg_group_id, name=group_name, description=group_description)
+        return group_name, group_description, tg_group_id, group_storage
+
+    def get_wa_group_storage(self) -> Tuple[GroupName, GroupDescription, WaGroupId, WaGroupStorage]:
+        group_name, group_description, _ = self.get_group_storage()
+        tg_group_id: WaGroupId = WaGroupId(123)
+        group_storage: WaGroupStorage = WaGroupStorage(id=tg_group_id, name=group_name, description=group_description)
+        return group_name, group_description, tg_group_id, group_storage
+
+    def get_group_conversation_storage(self) -> Tuple[TgGroupStorage, WaGroupStorage, GroupConversationStorage]:
+        _, _, _, tg_group = self.get_tg_group_storage()
+        _, _, _, wa_group = self.get_wa_group_storage()
+        conversation_storage: GroupConversationStorage = GroupConversationStorage(tg=tg_group, wa=wa_group)
+        return tg_group, wa_group, conversation_storage
+
+    def get_user_conversation_storage(self) -> Tuple[WaGroupStorage, WaUserStorage, TgUserStorage,
+                                                     UserConversationStorage]:
+        _, _, _, wa_group = self.get_wa_group_storage()
+        _, _, tg_user_storage = self.get_tg_user_storage()
+        _, _, _, _, wa_user_storage = self.get_wa_user_storage()
+        conversation_storage: UserConversationStorage = UserConversationStorage(wa_group=wa_group,
+                                                                                wa_user=wa_user_storage,
+                                                                                tg_user=tg_user_storage)
+        return wa_group, wa_user_storage, tg_user_storage, conversation_storage
 
     def test_user_storage_creation(self):
         user_name, user_storage = self.get_user_storage()
@@ -267,6 +299,45 @@ class DatabaseTest(unittest.TestCase):
         self.assertEqual(group_storage.users, [], msg="didn't remove user")
         with self.assertRaises(AttributeError, msg='removed nonexistent user'):
             group_storage.remove_user(user_storage)
+
+    def test_tg_group_storage_creation(self):
+        group_name, group_description, tg_id, group_storage = self.get_tg_group_storage()
+        self.assertEqual(tg_id, group_storage.id, msg='Id is not the same as given')
+        with self.assertRaises(AssertionError, msg='TgGroupStorage accepted invalid id'):
+            TgGroupStorage(id=123, name=group_name, description=group_description)
+
+    def test_wa_group_storage_creation(self):
+        group_name, group_description, wa_id, group_storage = self.get_wa_group_storage()
+        self.assertEqual(wa_id, group_storage.id, msg='Id is not the same as given')
+        with self.assertRaises(AssertionError, msg='WaGroupStorage accepted invalid id'):
+            WaGroupStorage(id=123, name=group_name, description=group_description)
+
+    def test_group_conversation_storage_creation(self):
+        tg_group, wa_group, conversation_storage = self.get_group_conversation_storage()
+        self.assertIs(tg_group, conversation_storage.tg, msg='TgGroupStorage is not exactly the same as given')
+        self.assertIs(wa_group, conversation_storage.wa, msg='WaGroupStorage is not exactly the same as given')
+        self.assertEqual(str(tg_group), str(conversation_storage),
+                         msg="GroupConversationStorage didn't return the expected str method")
+        with self.assertRaises(AssertionError, msg='Accepted invalid tg_group'):
+            GroupConversationStorage(tg='123', wa=wa_group)
+        with self.assertRaises(AssertionError, msg='Accepted invalid wa_group'):
+            GroupConversationStorage(tg=tg_group, wa='123')
+
+    def test_user_conversation_storage_creation(self):
+        wa_group, wa_user_storage, tg_user_storage, conversation_storage = self.get_user_conversation_storage()
+        self.assertIs(wa_group, conversation_storage.wa_group, msg='WaGroupStorage is not exactly the same as given')
+        self.assertIs(wa_user_storage, conversation_storage.wa_user,
+                      msg='WaUserStorage is not exactly the same as given')
+        self.assertIs(tg_user_storage, conversation_storage.tg_user,
+                      msg='TgUserStorage is not exactly the same as given')
+        self.assertEqual(f'{tg_user_storage}-{wa_user_storage}', str(conversation_storage),
+                         msg="UserConversationStorage didn't return the expected str method")
+        with self.assertRaises(AssertionError, msg='Accepted invalid wa_group'):
+            UserConversationStorage(wa_group='123', wa_user=wa_user_storage, tg_user=tg_user_storage)
+        with self.assertRaises(AssertionError, msg='Accepted invalid tg_user'):
+            UserConversationStorage(wa_group=wa_group, wa_user=wa_user_storage, tg_user='123')
+        with self.assertRaises(AssertionError, msg='Accepted invalid wa_user'):
+            UserConversationStorage(wa_group=wa_group, wa_user='123', tg_user=tg_user_storage)
 
     def tearDown(self) -> None:
         os.remove('picture.jpg')

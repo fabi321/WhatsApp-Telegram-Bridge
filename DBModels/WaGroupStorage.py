@@ -9,4 +9,5 @@ class WaGroupStorage(GroupStorage):
     def __init__(self, id: WaGroupId, name: GroupName, description: GroupDescription,
                  users: List[WaUserStorage] = None):
         super().__init__(name=name, description=description, users=users)
+        assert isinstance(id, WaGroupId)
         self.id: WaGroupId = id
