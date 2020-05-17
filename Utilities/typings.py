@@ -1,3 +1,7 @@
+from pathlib import Path
+from typing import Type
+
+
 class WaNumber(int):
     pass
 
@@ -50,8 +54,7 @@ class GroupDescription(str):
     pass
 
 
-class FilePath(str):
-    pass
+FilePath: Type[Path] = Path
 
 
 class AuthID(str):

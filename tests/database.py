@@ -1,4 +1,3 @@
-import os
 import unittest
 from typing import Dict, Tuple
 
@@ -21,8 +20,8 @@ from Utilities.typings import *
 
 class DatabaseTest(unittest.TestCase):
     def setUp(self) -> None:
-        with open('picture.jpg', 'w') as f:
-            f.write('Hello World')
+        self.picture: FilePath = FilePath('picture.jpg')
+        self.picture.touch()
 
     @classmethod
     def get_user_storage(self) -> Tuple[AccountName, UserStorage]:
@@ -119,7 +118,6 @@ class DatabaseTest(unittest.TestCase):
 
     def test_user_storage_picture(self):
         user_name, user_storage = self.get_user_storage()
-        picture_path: FilePath = FilePath('picture.jpg')
         with self.assertRaises(FileNotFoundError, msg='returned picture_path, but no picture given'):
             user_storage.get_picture()
         with self.assertRaises(FileNotFoundError, msg='accepted picture without picture_path'):
@@ -128,12 +126,12 @@ class DatabaseTest(unittest.TestCase):
             UserStorage(name=user_name, picture=True, picture_path='nonexistent')
         with self.assertRaises(AssertionError, msg='accepted string as picture_path'):
             UserStorage(name=user_name, picture=True, picture_path='picture.jpg')
-        user_storage.add_picture(picture_path=picture_path)
+        user_storage.add_picture(picture_path=self.picture)
         self.assertTrue(user_storage.picture, msg='picture is false, but picture was set afterwards')
-        self.assertEqual(user_storage.get_picture(), picture_path, msg='got different picture_path than set afterwards')
-        user_storage: UserStorage = UserStorage(name=user_name, picture=True, picture_path=picture_path)
+        self.assertEqual(user_storage.get_picture(), self.picture, msg='got different picture_path than set afterwards')
+        user_storage: UserStorage = UserStorage(name=user_name, picture=True, picture_path=self.picture)
         self.assertTrue(user_storage.picture, msg='picture is false, but picture was given')
-        self.assertEqual(user_storage.get_picture(), picture_path, msg='got different picture_path than given')
+        self.assertEqual(user_storage.get_picture(), self.picture, msg='got different picture_path than given')
 
     def test_user_storage_auth_id(self):
         test_strings: Dict[str, str] = {'123': '123', '-123': 'm123', '12-3': '12m3'}
@@ -336,7 +334,7 @@ class DatabaseTest(unittest.TestCase):
             UserConversationStorage(wa_group=wa_group, wa_user='123', tg_user=tg_user_storage)
 
     def tearDown(self) -> None:
-        os.remove('picture.jpg')
+        self.picture.unlink()
 
 
 if __name__ == '__main__':
