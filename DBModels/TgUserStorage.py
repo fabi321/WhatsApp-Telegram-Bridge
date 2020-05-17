@@ -10,3 +10,7 @@ class TgUserStorage(UserStorage):
 
     def get_type_name(self) -> str:
         return 'TgUser'
+
+    def __repr__(self):
+        return (f'TgUserStorage({self.id!r}, {self.name!r}, picture={self.picture}'
+                f'{", " + self.picture_path.__repr__() if self.picture_path else ""})')

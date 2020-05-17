@@ -13,6 +13,7 @@ class UserStorage(Persistent):
         self.type: str = self.get_type_name()
         assert not picture_path or isinstance(picture_path, FilePath)
         self.picture: bool = picture
+        self.id = 'changeme'
         if picture and (not picture_path or not picture_path.exists()):
             raise FileNotFoundError(self.type + ' got picture tag, but no valid picture path for ' + name +
                                     ' with the picture path ' + str(picture_path) + '.')
@@ -35,7 +36,16 @@ class UserStorage(Persistent):
         return 'User'
 
     def __str__(self) -> str:
-        return str(self.id)
+        return f'{self.id}'
+
+    def __repr__(self):
+        return (f'UserStorage({self.name!r}, picture={self.picture}'
+                f'{", picture_path=" + self.picture_path.__repr__() if self.picture_path else ""})')
+
+    def __eq__(self, other):
+        if str(other) == self.__str__():
+            return True
+        return False
 
     def auth_id(self) -> AuthID:
         return AuthID(self.id)

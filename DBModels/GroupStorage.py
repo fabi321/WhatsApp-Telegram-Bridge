@@ -30,7 +30,10 @@ class GroupStorage(Persistent):
         self.users.pop(self.users.index(user))
 
     def __str__(self) -> str:
-        return str(self.id)
+        return f'{self.id}'
+
+    def __repr__(self):
+        return f'GroupStorage({self.name!r}, {self.description!r}, {self.users!r}'
 
     def auth_id(self) -> AuthID:
         return AuthID(self.id)

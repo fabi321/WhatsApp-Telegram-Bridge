@@ -16,6 +16,11 @@ class WaUserStorage(UserStorage):
         self.password: bytes = b'changeme'
         self.tg_bot: TgBotStorage = TgBotStorage(id=tg_bot_id, token=tg_bot_token, wa_user=self)
 
+    def __repr__(self):
+        return (f'WaUserStorage({self.id!r}, {self.name!r}, {self.tg_bot.id!r}, {self.tg_bot.token!r}'
+                f', picture={self.picture}'
+                f'{", picture_path=" + self.picture_path.__repr__() if self.picture_path else ""})')
+
     def get_type_name(self) -> str:
         return 'WaUser'
 

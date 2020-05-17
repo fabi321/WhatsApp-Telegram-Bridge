@@ -74,4 +74,10 @@ class MessageStorage(Persistent):
         self.delivered = True
 
     def __str__(self) -> str:
-        return str(self.tg_id)
+        return f'{self.tg_id}'
+
+    def __repr__(self):
+        return (f'{self.text!r}, {self.sender!r}{", tg_id=" + self.tg_id.__repr__() if self.tg_id else ""}'
+                f'{", wa_id=" + self.wa_id.__repr__() if self.wa_id else ""}'
+                f'{", attachment=" + self.attachment.__repr__() if self.attachment else ""}'
+                f'{", reply_to=" + self.reply_to.__repr__() if self.reply_to else ""}')

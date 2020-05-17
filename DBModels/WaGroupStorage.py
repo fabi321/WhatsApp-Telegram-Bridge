@@ -11,3 +11,6 @@ class WaGroupStorage(GroupStorage):
         super().__init__(name=name, description=description, users=users)
         assert isinstance(id, WaGroupId)
         self.id: WaGroupId = id
+
+    def __repr__(self):
+        return f'WaGroupStorage({self.id!r}, {self.name!r}, {self.description!r}, users={self.users!r})'

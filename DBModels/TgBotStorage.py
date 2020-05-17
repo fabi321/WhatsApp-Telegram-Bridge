@@ -17,3 +17,6 @@ class TgBotStorage(UserStorage):
 
     def get_type_name(self) -> str:
         return 'TgBot'
+
+    def __repr__(self):
+        return f'TgBotStorage({self.id!r}, {self.token!r}, {self.wa_user!r})'

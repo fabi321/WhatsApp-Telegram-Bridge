@@ -15,4 +15,7 @@ class GroupConversationStorage(ConversationStorage):
         self.wa: WaGroupStorage = wa
 
     def __str__(self) -> str:
-        return str(self.tg)
+        return f'{self.tg}'
+
+    def __repr__(self):
+        return f'GroupConversationStorage({self.tg!r}, {self.wa!r}, {self.messages!r})'
