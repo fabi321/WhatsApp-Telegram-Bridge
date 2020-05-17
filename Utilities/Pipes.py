@@ -10,6 +10,7 @@ class Pipes:
         r, w = pipe()
         self.read_pipe: open = fdopen(r)
         self.pipes[descriptor] = w
+        self.descriptor: str = descriptor
 
     def send(self, descriptor: str, data: str):
         data += '\n'
@@ -17,3 +18,6 @@ class Pipes:
 
     def receive(self) -> str:
         return self.read_pipe.readline()[:-1]
+
+    def __repr__(self):
+        return f'Pipes({self.descriptor})'
