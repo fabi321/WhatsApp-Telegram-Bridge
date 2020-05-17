@@ -10,5 +10,9 @@ class GeneralStorageManager:
 
     def __init__(self):
         self._connection: Connection = self.db.open()
-        self._root = self._connection.root()
-        self._commit = commit
+        self.root = self._connection.root()
+        self.commit = commit
+
+    def close(self) -> None:
+        self._connection.close()
+        self.db.close()

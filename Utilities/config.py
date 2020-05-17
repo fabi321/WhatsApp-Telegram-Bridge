@@ -16,4 +16,4 @@ class Config:
     SETTINGS = {'wa_phone': parser.get('wa', 'phone'), 'wa_password': parser.get('wa', 'password'),
                 'owner': parser.getint('tg', 'owner'), 'tg_id': parser.get('tg', 'api_id'),
                 'tg_hash': parser.get('tg', 'hash'), 'public_path': parser.get('public', 'path'),
-                'public_reachable': parser.get('public', 'address')}
+                'public_reachable': parser.get('public', 'address'), 'db_path': parser.get('db', 'path')}
