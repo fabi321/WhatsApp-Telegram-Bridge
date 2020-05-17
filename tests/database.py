@@ -2,7 +2,6 @@ import os
 import unittest
 from typing import Dict, Tuple
 
-from ZODB import DB
 from bcrypt import checkpw
 
 from Attachments.GenericAttachment import GenericAttachment
@@ -22,9 +21,6 @@ from Utilities.typings import *
 
 class DatabaseTest(unittest.TestCase):
     def setUp(self) -> None:
-        self.db = DB(None)
-        self.conn = self.db.open()
-        self.root = self.conn.root()
         with open('picture.jpg', 'w') as f:
             f.write('Hello World')
 
