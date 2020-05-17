@@ -16,13 +16,11 @@ from DBModels.UserStorage import UserStorage
 from DBModels.WaGroupStorage import WaGroupStorage
 from DBModels.WaUserStorage import WaUserStorage
 from Utilities.typings import *
+from Utilities.typings import AccountName, TgUserId, WaNumber, TgBotId, TgBotToken, MessageText, TgMessageId, \
+    WaMessageId, GroupName, GroupDescription, TgGroupId, WaGroupId
 
 
-class DatabaseTest(unittest.TestCase):
-    def setUp(self) -> None:
-        self.picture: FilePath = FilePath('picture.jpg')
-        self.picture.touch()
-
+class DatabaseObjectCreator:
     @classmethod
     def get_user_storage(self) -> Tuple[AccountName, UserStorage]:
         user_name: AccountName = AccountName('name')
@@ -77,15 +75,15 @@ class DatabaseTest(unittest.TestCase):
 
     def get_tg_group_storage(self) -> Tuple[GroupName, GroupDescription, TgGroupId, TgGroupStorage]:
         group_name, group_description, _ = self.get_group_storage()
-        tg_group_id: TgGroupId = TgGroupId(123)
-        group_storage: TgGroupStorage = TgGroupStorage(id=tg_group_id, name=group_name, description=group_description)
-        return group_name, group_description, tg_group_id, group_storage
+        group_id: TgGroupId = TgGroupId(123)
+        group_storage: TgGroupStorage = TgGroupStorage(id=group_id, name=group_name, description=group_description)
+        return group_name, group_description, group_id, group_storage
 
     def get_wa_group_storage(self) -> Tuple[GroupName, GroupDescription, WaGroupId, WaGroupStorage]:
         group_name, group_description, _ = self.get_group_storage()
-        tg_group_id: WaGroupId = WaGroupId(123)
-        group_storage: WaGroupStorage = WaGroupStorage(id=tg_group_id, name=group_name, description=group_description)
-        return group_name, group_description, tg_group_id, group_storage
+        group_id: WaGroupId = WaGroupId(123)
+        group_storage: WaGroupStorage = WaGroupStorage(id=group_id, name=group_name, description=group_description)
+        return group_name, group_description, group_id, group_storage
 
     def get_group_conversation_storage(self) -> Tuple[TgGroupStorage, WaGroupStorage, GroupConversationStorage]:
         _, _, _, tg_group = self.get_tg_group_storage()
@@ -103,16 +101,20 @@ class DatabaseTest(unittest.TestCase):
                                                                                 tg_user=tg_user_storage)
         return wa_group, wa_user_storage, tg_user_storage, conversation_storage
 
+
+class DatabaseTest(unittest.TestCase, DatabaseObjectCreator):
+    def setUp(self) -> None:
+        self.picture: FilePath = FilePath('picture.jpg')
+        self.picture.touch()
+
     def test_user_storage_creation(self):
         user_name, user_storage = self.get_user_storage()
         self.assertEqual(user_storage.name, user_name, msg='got different name than given')
         self.assertEqual(user_storage.get_type_name(), 'User', msg='UserStorage is not named User')
         self.assertFalse(user_storage.picture, msg='picture is true, but not given')
         self.assertIsNone(user_storage.picture_path, msg='picture_path is set, but not given')
-        with self.assertRaises(AttributeError, msg='got auth_id without self.id'):
-            user_storage.auth_id()
-        with self.assertRaises(AttributeError, msg='got str(user_storage) without self.id'):
-            str(user_storage)
+        self.assertEqual(user_storage.id, 'changeme', msg='id is unlike "changeme" while none was set')
+        self.assertEqual(str(user_storage), 'changeme', msg='str is unlike "changeme" while no id was set')
         with self.assertRaises(AssertionError, msg='accepted string as name'):
             UserStorage(name='name')
 
@@ -291,7 +293,7 @@ class DatabaseTest(unittest.TestCase):
             group_storage.add_user('abc')
         group_storage.remove_user(user_storage)
         self.assertEqual(group_storage.users, [], msg="didn't remove user")
-        with self.assertRaises(AttributeError, msg='removed nonexistent user'):
+        with self.assertRaises(NotImplementedError, msg='removed nonexistent user'):
             group_storage.remove_user(user_storage)
 
     def test_tg_group_storage_creation(self):
