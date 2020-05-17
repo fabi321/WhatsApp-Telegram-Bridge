@@ -122,7 +122,7 @@ class DatabaseTest(unittest.TestCase):
             user_storage.get_picture()
         with self.assertRaises(FileNotFoundError, msg='accepted picture without picture_path'):
             UserStorage(name=user_name, picture=True)
-        with self.assertRaises(FileNotFoundError, msg='accepted nonexistent picture_path'):
+        with self.assertRaises(AssertionError, msg='accepted nonexistent picture_path'):
             UserStorage(name=user_name, picture=True, picture_path='nonexistent')
         with self.assertRaises(AssertionError, msg='accepted string as picture_path'):
             UserStorage(name=user_name, picture=True, picture_path='picture.jpg')
