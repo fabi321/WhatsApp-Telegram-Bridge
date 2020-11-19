@@ -18,4 +18,4 @@ class GroupConversationStorage(ConversationStorage):
         return f'{self.tg}'
 
     def __repr__(self):
-        return f'GroupConversationStorage({self.tg!r}, {self.wa!r}, {self.messages!r})'
+        return f'GroupConversationStorage({self.tg!r}, {self.wa!r}, messages={self.messages!r})'
