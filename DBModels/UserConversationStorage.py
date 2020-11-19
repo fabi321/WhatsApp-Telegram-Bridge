@@ -22,4 +22,5 @@ class UserConversationStorage(ConversationStorage):
         return f'{self.tg_user}-{self.wa_user}'
 
     def __repr__(self):
-        return f'UserConversationStorage({self.wa_group!r}, {self.wa_user!r}, {self.tg_user!r}, {self.messages!r})'
+        return f'UserConversationStorage({self.wa_group!r}, {self.wa_user!r}, {self.tg_user!r}, ' \
+               f'messages={self.messages!r})'
