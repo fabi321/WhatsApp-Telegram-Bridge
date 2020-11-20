@@ -14,6 +14,3 @@ class TgGroupStorage(GroupStorage):
 
     def __repr__(self):
         return f'TgGroupStorage({self.id!r}, {self.name!r}, {self.description!r}, {self.users!r})'
-
-    def get_pipe_id(self) -> str:
-        return str(self.id)

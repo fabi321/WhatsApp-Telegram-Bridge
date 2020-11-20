@@ -48,9 +48,3 @@ class UserStorage(Redirectable):
 
     def auth_id(self) -> AuthID:
         return AuthID(self.id)
-
-    def get_pipe_name(self) -> str:
-        return 'MessageUser'
-
-    def get_pipe_id(self) -> str:
-        return str(self.id)

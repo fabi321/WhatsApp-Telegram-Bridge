@@ -37,6 +37,3 @@ class GroupStorage(Redirectable):
 
     def auth_id(self) -> AuthID:
         return AuthID(self.id)
-
-    def get_pipe_name(self) -> str:
-        return 'MessageGroup'

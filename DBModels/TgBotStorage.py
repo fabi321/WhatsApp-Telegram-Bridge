@@ -20,6 +20,3 @@ class TgBotStorage(UserStorage):
 
     def __repr__(self):
         return f'TgBotStorage({self.id!r}, {self.token!r}, {self.wa_user!r})'
-
-    def get_pipe_name(self) -> str:
-        return 'MessageBot'

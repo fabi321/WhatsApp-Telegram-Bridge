@@ -13,10 +13,4 @@ class Redirectable(Persistent):
         self.redirect: Optional[Redirectable] = redirects
 
     def get_pipe(self, msg_id: [WaMessageId, TgMessageId]) -> str:
-        return f'{self.get_pipe_name()}\x1f{msg_id}\x1f{self.get_pipe_id()}'
-
-    def get_pipe_id(self) -> str:
-        raise NotImplemented('Redirectable needs get_pipe_id')
-
-    def get_pipe_name(self) -> str:
-        raise NotImplemented('Redirectable needs get_pipe_name')
+        return f'Message\x1f{msg_id}'
