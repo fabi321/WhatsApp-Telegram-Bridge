@@ -1,13 +1,13 @@
 from typing import List
 
-from persistent import Persistent
 from persistent.list import PersistentList
 
+from DBModels.Redirectable import Redirectable
 from DBModels.UserStorage import UserStorage
 from Utilities.typings import GroupDescription, GroupName, AuthID
 
 
-class GroupStorage(Persistent):
+class GroupStorage(Redirectable):
     def __init__(self, name: GroupName, description: GroupDescription, users: List[UserStorage] = None):
         super().__init__()
         assert isinstance(name, GroupName)
@@ -37,3 +37,6 @@ class GroupStorage(Persistent):
 
     def auth_id(self) -> AuthID:
         return AuthID(self.id)
+
+    def get_pipe_name(self) -> str:
+        return 'MessageGroup'

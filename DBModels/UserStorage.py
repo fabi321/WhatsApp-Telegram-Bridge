@@ -1,11 +1,10 @@
 from abc import abstractmethod
 
-from persistent import Persistent
-
+from DBModels.Redirectable import Redirectable
 from Utilities.typings import FilePath, AccountName, AuthID
 
 
-class UserStorage(Persistent):
+class UserStorage(Redirectable):
     def __init__(self, name: AccountName, picture: bool = False, picture_path: FilePath = None):
         super().__init__()
         assert isinstance(name, AccountName)
@@ -49,3 +48,9 @@ class UserStorage(Persistent):
 
     def auth_id(self) -> AuthID:
         return AuthID(self.id)
+
+    def get_pipe_name(self) -> str:
+        return 'MessageUser'
+
+    def get_pipe_id(self) -> str:
+        return str(self.id)

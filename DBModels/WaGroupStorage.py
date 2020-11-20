@@ -14,3 +14,6 @@ class WaGroupStorage(GroupStorage):
 
     def __repr__(self):
         return f'WaGroupStorage({self.id!r}, {self.name!r}, {self.description!r}, users={self.users!r})'
+
+    def get_pipe_id(self) -> str:
+        return str(self.id)
