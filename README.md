@@ -21,9 +21,9 @@ SOFTWARE.
 ## How to set-up your own instance of this bot?
 
 - ```cd $WORK_DIR```
-- ```git clone https://github.com/fabi321/WhatsApp-Telegram-Bridge.git```
-- ```cd WhatsApp-Telegram-Bridge```
-- ```git clone https://github.com/AragurDEV/yowsup.git```
+- ```git clone https://github.com/fabi321/wat-bridge.git```
+- ```cd wat-bridge```
+- ```git clone https://github.com/tgalal/yowsup.git```
 - ```apt install python3-virtualenv```
 - ```virtualenv -p python3 venv``` or ```python3 -m virtualenv -p python3 venv```
 - ```. venv/bin/activate```
