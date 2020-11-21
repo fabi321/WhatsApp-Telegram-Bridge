@@ -6,7 +6,7 @@ from BTrees.OOBTree import OOBTree
 from Handlers.GeneralStorageManager import GeneralStorageManager
 from Handlers.TgBotHandler import TgBotHandler
 from Utilities.Pipes import Pipes
-from tests.database import DatabaseObjectCreator
+from tests.test_database import DatabaseObjectCreator
 
 
 class HandlerTest(unittest.TestCase, DatabaseObjectCreator):
