@@ -42,9 +42,7 @@ class UserStorage(Redirectable):
                 f'{", picture_path=" + self.picture_path.__repr__() if self.picture_path else ""})')
 
     def __eq__(self, other):
-        if str(other) == self.__str__():
-            return True
-        return False
+        return str(other) == self.__str__()
 
     def auth_id(self) -> AuthID:
         return AuthID(self.id)
