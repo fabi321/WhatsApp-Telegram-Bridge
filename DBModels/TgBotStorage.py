@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from DBModels import WaUserStorage
 from DBModels.UserStorage import UserStorage
 from Utilities.typings import TgBotId, TgBotToken
 
@@ -20,3 +19,6 @@ class TgBotStorage(UserStorage):
 
     def __repr__(self):
         return f'TgBotStorage({self.id!r}, {self.token!r}, {self.wa_user!r})'
+
+
+from DBModels import WaUserStorage
