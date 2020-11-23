@@ -108,3 +108,5 @@ mozilla
 DeepSpeech
 /prev_logs/
 photo.jpg
+
+tests/test.db*
