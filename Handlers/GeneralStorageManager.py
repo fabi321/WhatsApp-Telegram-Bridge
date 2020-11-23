@@ -15,7 +15,7 @@ class GeneralStorageManager:
         self._connection: Connection = self.db.open(self._transaction)
         self.root = self._connection.root()
         self.commit: Callable = self._transaction.commit
-        self.sync: Callable = self._transaction.sync
+        self.sync: Callable = self._connection.sync
 
     def close(self) -> None:
         self._connection.close()
